@@ -1,20 +1,21 @@
 ## Gates (01)
 
 The exercises of 01 consists in building some basic logic gates in which is only allowed
-Nand gates (from the start) and the following composite gates that later I built by myself
+Nand gates (from the start) and the following composite gates that later I built by myself.
+
 TLDR: I can only use the gate if I already built, with the exception of the Nand gate).
 
-After building 5 gates (Not, And, Or, Xor, Mux) I just realized that I don't need to be
-to try to build the .hdl trying the multiple possible combinations of gates, I just need
+After building 5 gates (Not, And, Or, Xor, Mux) I just realized that I don't need to
+to try multiple possible combinations of gates, I just need
 to use the canonical representation derived from the truth table.
 
 #### How? to obtain the canonical representation?
 
 Select only the rows where the output is 1 and perform an 'AND' operation on the variables, negating them if necessary to maintain the output as 1.
 
-#### Example: this is the Mux truth table: 
-
+#### Example: 
 ```
+Mux table
 |   a   |   b   |  sel  |  out  |
 |   0   |   0   |   0   |   0   |
 |   0   |   0   |   1   |   0   |
