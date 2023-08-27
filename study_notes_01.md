@@ -86,3 +86,9 @@ func b(in, sel) = in . sel
 ```
 
 Then we just have two pipe these two output functions to the outputs of the chip.
+
+#### Multi-bit (buses) chip design
+
+I thought it would be something more complex but as in the real life, we're just connecting
+wires to plugs, so we just literally have to use a logic gate *n* times. There is no for loop
+in this level of abstraction lol.
