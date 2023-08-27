@@ -92,3 +92,8 @@ Then we just have two pipe these two output functions to the outputs of the chip
 I thought it would be something more complex but as in the real life, we're just connecting
 wires to plugs, so we just literally have to use a logic gate *n* times. There is no for loop
 in this level of abstraction lol.
+
+#### Multi-Way chips
+
+Again, I thought it would be something more complex but they're just chips with more than one input.
+So a Or8Way is an Or gate which accepts 8 inputs and outputs 1 in case at least one of these 8 values 1.
