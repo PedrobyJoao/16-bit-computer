@@ -97,3 +97,34 @@ in this level of abstraction lol.
 
 Again, I thought it would be something more complex but they're just chips with more than one input.
 So a Or8Way is an Or gate which accepts 8 inputs and outputs 1 in case at least one of these 8 values 1.
+
+#### Difference between Multi-Way and Multi-Bit concepts
+Multi-Bit and Multi-Way are usually represented as an array x[0...m] but, from what I understood,
+
+Multi-Bit (bus) is meant to do boolean operations between *n* chips of *m* bits. So a *AND* operation
+for Multi-Bit chips is between *two* chips of *m* bits in which all the operations will be done
+in *pairs*.
+
+So Multi-Bit is about boolean operations between *n* buses
+
+Example:
+```
+AND between two arrays of a Multi-Bit chip containing three elements each: a[3] AND b[3]
+
+Workflow:
+Pair: a[0] AND b[0]
+Pair: a[1] AND b[1]
+Pair: a[2] AND b[2]
+```
+
+Now, for Multi-Way chips boolean operations, it's kinda different. The boolean operations occurs with
+the bus itself, so there is only *1 bus* being target of boolean operations
+
+Example:
+```
+Or8Way
+
+Input: one bus in[8]
+
+Outputs 1 if one of the bits in the bus values 1
+```
