@@ -90,7 +90,7 @@ Then we just have two pipe these two output functions to the outputs of the chip
 #### Multi-bit (buses) chip design
 
 I thought it would be something more complex but as in the real life, we're just connecting
-wires to plugs, so we just literally have to use a logic gate *n* times. There is no for loop
+wires to plugs, so we just literally have to use a logic gate **n** times. There is no for loop
 in this level of abstraction lol.
 
 #### Multi-Way chips
@@ -101,11 +101,11 @@ So a Or8Way is an Or gate which accepts 8 inputs and outputs 1 in case at least 
 #### Difference between Multi-Way and Multi-Bit concepts
 Multi-Bit and Multi-Way are usually represented as an array x[0...m] but, from what I understood,
 
-Multi-Bit (bus) is meant to do boolean operations between *n* chips of *m* bits. So a *AND* operation
-for Multi-Bit chips is between *two* chips of *m* bits in which all the operations will be done
-in *pairs*.
+Multi-Bit (bus) is meant to do boolean operations between **n** chips of **m** bits. So a **AND** operation
+for Multi-Bit chips is between **two** chips of **m** bits in which all the operations will be done
+in **pairs**.
 
-So Multi-Bit is about boolean operations between *n* buses
+So Multi-Bit is about boolean operations between **n** buses
 
 Example:
 ```
@@ -118,7 +118,7 @@ Pair: a[2] AND b[2]
 ```
 
 Now, for Multi-Way chips boolean operations, it's kinda different. The boolean operations occurs with
-the bus itself, so there is only *1 bus* being target of boolean operations
+the bus itself, so there is only **1 bus** being target of boolean operations
 
 Example:
 ```
