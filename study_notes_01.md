@@ -57,4 +57,32 @@ a . not(sel)
 sel . b + a . not(sel)
 ```
 
+#### Canonical representation with more than one output (DMux)
 
+DMux has two inputs and two outputs, so how the he** will I apply this technique?
+We do the same but we treat each output as an unique function.
+
+```
+DMux truth table:
+|  in   |  sel  |   a   |   b   |
+|   0   |   0   |   0   |   0   |
+|   0   |   1   |   0   |   0   |
+|   1   |   0   |   1   |   0   |
+|   1   |   1   |   0   |   1   |
+
+For func a(in, sel):
+
+|  in   |  sel  |   a   |   b   |
+|   1   |   0   |   1   |   0   |
+
+func a(in, sel) = in . not(sel)
+
+For func b(in, sel):
+
+|  in   |  sel  |   a   |   b   |
+|   1   |   1   |   0   |   1   |
+
+func b(in, sel) = in . sel
+```
+
+Then we just have two pipe these two output functions to the outputs of the chip.
