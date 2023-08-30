@@ -128,3 +128,63 @@ Input: one bus in[8]
 
 Outputs 1 if one of the bits in the bus values 1
 ```
+
+#### Mux4Way16 (this one got me)
+
+Note: please
+
+This was the hardest until now, canonical representation was helpful but if you simplify it then it won't work
+because it'll reduce to 1. However, the canonical representation is also a bit hacky, I would have to build a
+3 AND gate in which 2 inputs are 1 bit and the third is a 16-bit bus (it would work but...).
+
+Then, I came to this solution which was to recursivily use a Mux16 (**m** times depending on the **n**-way) three times.
+
+Reminder: this solution is basically a **tree** of Mux outputs calling each other
+
+Actually I tried this before but the catch was: the first and second Mux16 should use sel[0], and the third should use sel[1] and the output of the first/second Mux16's. Which it didn't make sense to me, why did I have to use sel[0] for the selector for deciding between c/d?
+
+The reason why is because this order of selectors is the only one (or not) that differentiate between the outputs of a/b and c/d.
+It's better if you check this video if needed: https://www.youtube.com/watch?v=Igs0OCW6b6g
+```
+sel1 sel2 out 
+0    0   a  
+0    1   b  
+1    0   c  
+1    1   d  
+```
+
+#### Canonical Representation (review after Mux4Way16)
+
+Note: Also, it seems to get the canonical representation we don't need necessarily to get the rows which output is 1.
+It seems it's possible to work like the following
+
+```
+sel1 sel2 out 
+0    0   a  
+0    1   b  
+1    0   c  
+1    1   d  
+
+1. not(sel1) . not(sel2) . a
+
+2. not(sel1) . sel2 . b
+
+3. sel1 . not(sel2) . c
+
+4. sel1 . sel2 . d
+
+Now, just SUM them!
+```
+
+As you can see, none of the outputs is necessarily 1, still, we can get the canonical representation (but now
+I'm not sure if for these cases we should stil call it 'minterm'.)
+
+HOWEVER, if we try to simplify this SUM, we get 1. But it's still possible to build the gates from the pure canonical
+representation without simplifying it and make a functional chip. 
+
+#### Mux8Way16
+
+I easily got done with this one in 30 seconds but just because I used the tree method used on the last Mux4Way16,
+the only difference now it was tree's height (we had one more level/depth to 'Muxit').
+
+Note: I first used 7 Mux16 gates for this one.

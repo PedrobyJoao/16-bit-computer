@@ -16,5 +16,39 @@ CHIP Mux4Way16 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    Mux16(a=a, b=b, sel=sel[0], out=muxAB);
+    Mux16(a=c, b=d, sel=sel[0], out=muxCD);
+
+    Mux16(a=muxAB, b=muxCD, sel=sel[1], out=out);
 }
+
+/*
+Some drafts (not necessarily implemented):
+
+sel1 sel2 out 
+ 0    0   a  
+ 0    1   b  
+ 1    0   c  
+ 1    1   d  
+
+minterm for a: not(sel1) . not(sel2) . a
+
+minterm for b: not(sel1) . sel2 . b
+
+minterm for c: sel1 . not(sel2) . c
+
+minterm for d: sel1 . sel2 . d
+
+Sum of minterms:
+
+1. not(sel1) . (not(sel2) + sel2 + a + b)
+not(sel1) . (1 + a + b)
+not(sel1) . 1
+not(sel1)
+
+2. sel1 . (not(sel2) + sel2 + c + d)
+sel1 . 1
+sel1
+
+Final: not(sel1) + sel 1 = 1
+/
