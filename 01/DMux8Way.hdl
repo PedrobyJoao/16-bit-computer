@@ -23,3 +23,11 @@ CHIP DMux8Way {
     DMux(in=ef, sel=sel[0], a=e, b=f);
     DMux(in=gh, sel=sel[0], a=g, b=h);
 }
+
+/*
+Cleaner way (got from https://www.youtube.com/watch?v=Mzy0RG9Z1Ak):
+DMux(in=in, sel=sel[2], a=abcd, b=efgh);
+
+DMux4Way(in=abcd, sel=sel[0..1], a=a, b=b, c=c, d=d);
+DMux4Way(in=efgh, sel=sel[0..1], a=e, b=f, c=g, d=h);
+/
