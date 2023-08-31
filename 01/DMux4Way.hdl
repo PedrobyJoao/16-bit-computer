@@ -16,5 +16,29 @@ CHIP DMux4Way {
     OUT a, b, c, d;
 
     PARTS:
-    // Put your code here:
+    Not(in=sel[0], out=notsel0);
+    Not(in=sel[1], out=notsel1);
+
+    And3(a=in, b=notsel0, c=notsel1, out=a);
+    And3(a=in, b=sel[0], c=notsel1, out=b);
+    And3(a=in, b=notsel0, c=sel[1], out=c);
+    And3(a=in, b=sel[0], c=sel[1], out=d);
 }
+
+/*
+func a: in . not(sel1) . not(sel2)
+
+func b: in . not(sel1) . sel2
+
+func c: in . sel1 . not(sel2)
+
+func d: in . sel1 . sel2
+
+####
+
+Inverse tree solution:
+DMux(in=in, sel=sel[1], a=ab, b=cd);
+
+DMux(in=ab, sel=sel[0], a=a, b=b);
+DMux(in=cd, sel=sel[0], a=c, b=d);
+/

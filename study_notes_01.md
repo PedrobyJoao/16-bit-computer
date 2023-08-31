@@ -131,8 +131,6 @@ Outputs 1 if one of the bits in the bus values 1
 
 #### Mux4Way16 (this one got me)
 
-Note: please
-
 This was the hardest until now, canonical representation was helpful but if you simplify it then it won't work
 because it'll reduce to 1. However, the canonical representation is also a bit hacky, I would have to build a
 3 AND gate in which 2 inputs are 1 bit and the third is a 16-bit bus (it would work but...).
@@ -187,4 +185,12 @@ representation without simplifying it and make a functional chip.
 I easily got done with this one in 30 seconds but just because I used the tree method used on the last Mux4Way16,
 the only difference now it was tree's height (we had one more level/depth to 'Muxit').
 
-Note: I first used 7 Mux16 gates for this one.
+Note: I used 7 Mux16 gates for this one (it's also possible to use 2 Mux4Way16 gates and 1 Mux16 gate)
+
+
+#### DMux4Way and DMux8Way
+
+Both can be solved with a tree-like method as the normal Mux but instead of a normal tree, we must use a inversed tree and
+also change the order of the selectors
+
+Note: for DMux4Way I didn't know how to solve using DMux itself, so I used the canonical expression for each output
