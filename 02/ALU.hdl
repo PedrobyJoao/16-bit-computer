@@ -66,7 +66,6 @@ CHIP ALU {
     Mux16(a=halfOut, b=notHalfOut, sel=no, out=out, out=outFinal);
 
     // if (out == 0) set zr = 1
-    // TODO: check a more elegant way of solving this one
     Or16(a=outFinal, b=outFinal, out[0..7]=outFinal1, out[8..15]=outFinal2);
 
     Or8Way(in=outFinal1, out=orOutFinal1);
@@ -76,7 +75,14 @@ CHIP ALU {
     Not(in=notZr, out=zr);
 
     // if (out < 0) set ng = 1
-    // TODO: check a more elegant way of solving this one
     Not16(in=outFinal, out[15]=notMSB);
     Not(in=notMSB, out=ng);
 }
+
+/*
+
+Instead of splitting the output and getting the Most Significant Bit on separate lines, I could have embedded everything in one as in:
+
+Mux16(a=result, b=negatedResult, sel=no, out=out, out[15]=firstOut, out[0..7]=finalLeft, out[8..15]=finalRight);
+
+/

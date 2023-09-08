@@ -19,7 +19,7 @@ I didn't know this "syntax sugar" was possible.
 
 ### Building the ALU
 
-#### Conclusions (check the detailed nodes below)
+#### Conclusions (detailed notes after improvements section)
 First, building the ALU was easier than Multi-way Multi-bit Mux/DMux'es. I thought ALU would be very hard to make, taking me days of study and work. But it was quite easy and funny, I liked a lot this process.
 
 Important things that I learned:
@@ -42,6 +42,15 @@ In which the order is obviously important
 The order of inputs is only irrelevant when dealing with
 very basic primitives gates (OR, NAND, AND, XOR...) 
 ```
+
+#### Improvements
+1. Instead of splitting the output and getting the Most Significant Bit on separate lines, I could have embedded everything in one as in:
+
+```
+Mux16(a=result, b=negatedResult, sel=no, out=out, out[15]=firstOut, out[0..7]=finalLeft, out[8..15]=finalRight);
+```
+
+#### Detailed Notes
 
 #### zx and zy
 ```
