@@ -42,5 +42,41 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // zx: if (zx == 1) set x = 0
+    Mux16(a=x, b[0..15]=false, sel=zx, out=zeroX);
+
+    // nx: if (nx == 1) set x = !x
+    Not16(in=zeroX, out=notZeroX);
+    Mux16(a=zeroX, b=notZeroX, sel=nx, out=negZeroX);
+
+    // zy: if (zy == 1) set y = 0
+    Mux16(a=y, b[0..15]=false, sel=zy, out=zeroY);
+
+    // ny: if (ny == 1) set y = !y
+    Not16(in=zeroY, out=notZeroY);
+    Mux16(a=zeroY, b=notZeroY, sel=ny, out=negZeroY);
+
+    // if (f == 1)  set out = x + y
+    Add16(a=negZeroX, b=negZeroY, out=xSUMy);  
+    And16(a=negZeroX, b=negZeroY, out=xANDy);
+    Mux16(a=xANDy, b=xSUMy, sel=f, out=halfOut);
+
+    // if (no == 1) set out = !out
+    Not16(in=halfOut, out=notHalfOut);
+    Mux16(a=halfOut, b=notHalfOut, sel=no, out=out, out=outFinal);
+
+    // if (out == 0) set zr = 1
+    // TODO: check a more elegant way of solving this one
+    Or16(a=outFinal, b=outFinal, out[0..7]=outFinal1, out[8..15]=outFinal2);
+
+    Or8Way(in=outFinal1, out=orOutFinal1);
+    Or8Way(in=outFinal2, out=orOutFinal2);
+
+    Or(a=orOutFinal1, b=orOutFinal2, out=notZr);
+    Not(in=notZr, out=zr);
+
+    // if (out < 0) set ng = 1
+    // TODO: check a more elegant way of solving this one
+    Not16(in=outFinal, out[15]=notMSB);
+    Not(in=notMSB, out=ng);
 }
