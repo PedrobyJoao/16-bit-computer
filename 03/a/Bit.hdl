@@ -14,5 +14,14 @@ CHIP Bit {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    Mux(a=loopOut, b=in, sel=load, out=data);
+    DFF(in=data, out=loopOut, out=out);
 }
+
+/*
+
+Be aware on the order of the Peaky fu... lol. Seriously,
+be aware on the order of Mux's inputs. In this case, b 
+must equals in because of the Mux truth table and how 
+we expect data to be loaded accordingly to load.
+/
