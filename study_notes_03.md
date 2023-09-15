@@ -103,3 +103,13 @@ Actually, it seems everyone implemented using the same stuffs and workflow. So i
 (Interesting how humans in different parts of the world, in different epoches, arrive at
 the same conclusion, almost the same lines of code. (OR maybe this is just something
 that there are not a lot of possible different solutions))
+
+#### RAM64, RAM512, RAM4K and RAM16K
+
+First of all, it would be hard to figure out by myself this rule of using least significant bits for
+deciding the registers and MSBs for deciding the RAMx between 8 RAMx. I'm glad the book gave me this advice.
+
+My mind get a little lost on this pile of abstractions, RAM16K using all the RAMxs all the way down into the
+hierarchy. I try to imagine how would be the chips in the real hardware. From where do we start? Do we use
+n RAM8 chips? Or do we build RAM64 chips with RAM8 chips and build the rest with it? Did you get it? This can go
+indefinitely recursively to an infinite size chip.. what is the start point in a real hardware?
