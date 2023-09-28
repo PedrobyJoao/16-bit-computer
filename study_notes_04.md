@@ -108,3 +108,26 @@ Some detailed steps:
 ```
 
 Something important that I learned: do not exclude tests from the .tst file, the overall testing won't work correctly and it'll yield incorrect outputs
+
+#### Fill.asm
+
+Ok, I long time was spent here.
+
+The first method that I tried (not working) was I iterated through 255 rows and 512 cols,
+thinking on changing each bit of each pixel, accessing each pixel with M[@SCREEN + row + col]. The problem is: this memory map won't
+return a specific pixel-bit, it will return a word of 16-bits (16 pixels).
+
+The second thing that I tried it was to use their algebraic expression (so I had to build the multiplication and division operations)
+but it worked in a slow pace, but I don't know why it worked actually, I was setting M[@SCREEN + row*32 + col/16] = -1.
+It doesn't make sense because for col=0, col/16 == 0, and col=1 -> col/16 == 0 because of integer divisions so the mapping is not
+really changing unless somewhere in the assembler is handling this memory mapping of floating points.
+
+But the right and fast solution was:
+```
+        // The screen's memory is mapped to a 8K memory
+        // And starts at @SCREEN. @SCREEN + 1 will give
+        // The next word of this memory map.
+        // We must paint all words within this memory map
+        // So we just have to go from @SCREEN to @SCREEN + 8192 
+        // Reminder: M[n] will always be equals a 16-bit word
+```
