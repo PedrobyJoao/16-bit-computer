@@ -27,5 +27,24 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // Until 0x3FFF, it's for the 16K Memory
+    // 0x4000 == 010...0 so when address[14] == 1, then:
+    // either it's Screen or Keyboard
+    // 0x6000 (keyboard) == 01100...0 
+
+    DMux4Way(in=load, sel=address[13..14], a=load16KA, b=load16KB, c=loadScreen,
+            d=loadKeyboard);
+
+    Or(a=load16KA, b=load16KB, out=load16K);
+    
+    RAM16K(in=in, load=load16K, address=address[0..13], out=outRAM16K);
+    Screen(in=in, load=loadScreen, address=address[0..12], out=outScreen);
+    
+    // if loadKeyboard == 1, then set outKBD=in
+    //Mux16(a=in, b[0..15]=false, sel=loadKeyboard, out=outKBD, out=valueKBD);
+    Keyboard(out=outKBD);
+
+
+    Mux4Way16(a=outRAM16K, b=outRAM16K, c=outScreen, d=outKBD,
+                sel=address[13..14], out=out);
 }

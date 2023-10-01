@@ -39,5 +39,8 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // Parse instructions
+
+    // Address-Register part:
+    Mux16(a=inM, b=outMLoop, sel= ,out=muxedAddress)
 }
