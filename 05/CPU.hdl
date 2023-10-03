@@ -39,8 +39,70 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Parse instructions
+    // =================== Control Unit ===================
 
-    // Address-Register part:
-    Mux16(a=inM, b=outMLoop, sel= ,out=muxedAddress)
+    // Abstracting instruction
+    And16(a=instruction, b=outMPrev, out[0..2]=bitsJMP, out[3..5]=bitsDEST, out[6..11]=bitsALUControl,
+            out[12]=bitA, out[15]=bitType);
+
+
+    // Address-Register part
+    // We might use coming instruction if it's an A-Instruction, otherwise we'll get from outM
+    Mux16(a=instruction, b=outMPrev, sel=instruction[15], out=muxedAddress); // update A with current instruction or keep the A(t-1)?
+    ARegister(in=muxedAddress, load=bitsDEST[2],out=AddressRegisterValue, out=addressM);
+
+    // Decide next instruction
+
+    // =================== PC ===================
+
+    // else if C-Instruction, jmp control bits logic
+    Xor(a=bitsJMP[0], b=instruction[0], out=jmpXor0);
+    Xor(a=bitsJMP[1], b=instruction[1], out=jmpXor1);
+    Xor(a=bitsJMP[2], b=instruction[2], out=jmpXor2);
+
+    Or3(a=jmpXor0, b=jmpXor1, c=jmpXor2, out=jmpOr3);
+
+    Not(in=jmpOr3, out=loadIfNonNullJMPBits);
+
+    // if control bits == 0, 0, 0 => inc=1, load=0
+    Or3(a=bitsJMP[0], b=bitsJMP[1], c=bitsJMP[2], out=isNotNullJMPBits);
+
+    Mux(a=0, b=loadIfNonNullJMPBits, sel=isNotNullJMPBits, out=loadIfCinstruction);
+
+    // if A-Instruction => inc=1, load=0
+    // In this case, load=instruction[15] itself
+
+    // Decide between loadIfCInstruction or loadIfAinstruction
+    Mux(a=0, b=loadIfCinstruction, sel=instruction[15], out=pcLoad);
+
+    // They will always be the opposite since
+    // either the CPU jumps to a X instruction or it increments 1
+    Not(in=pcLoad, out=pcInc);
+
+    PC(in=AddressRegisterValue, load=pcLoad, inc=pcInc, reset=reset, out=pc);
+
+    // =================== ALU ===================
+
+    // Address/Memory acting as ALU's input part
+    Mux16(a=AddressRegisterValue, b=inM, sel=instruction[], out=ALUyInputAddressOrMemory);
+
+    // DataRegister part
+    DRegister(in=outMPrev, load=bitsDEST[1], out=DataRegisterValue);
+
+    // Finally, ALU
+    ALU(x=DataRegisterValue, y=ALUyInputAddressOrMemory,
+        zx=,
+        nx=,
+        zy=,
+        ny=,
+        f=,
+        no=,
+
+        out=outM,
+        out=outMPrev,
+        zr=outEqualsZero,
+        ng=outLessThanZero);
+
+    // WriteM part
+
 }

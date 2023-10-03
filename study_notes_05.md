@@ -23,3 +23,50 @@ within the Memory. Any inputs will be written in the given memory addresses for 
 write something in the memory which is what the output device will receive.
 
 Example of mapped memory: In my computer X, the screen is allocated with a sequence 8K Registers starting at Memory[14321]
+
+### Exercises
+
+#### CPU (Central Processing Unit)
+Damn! Ok, one thing that I just learned (or I may be wrong) but the diagram showed on the book is incomplete and misleading,
+we actually have to do some combination logic to differentiate A-instructions and C-instructions before every control bit
+insertion.
+
+Tip: 
+- get based on the diagram but imagine the workflow of each type of instruction.
+- ARegister (15-bit register) doesn't necessarily mean a register containing an Address, it can contain also values
+
+Example:
+```
+A-Instruction
+---------------
+ 
+On the first MUX, we have to decide between the current A-Instruction or the outM that may or not be an instruction
+...
+Actually, let's get this example to the PC (Program Counter) and come back here later:
+
+PC interface:
+    PC(in=ValueOnARegister, load= , inc= , reset=reset, out=pc);
+
+PC depends on control bits of C-instructions for JMP instructions but JMP instructions just exist within C-instructions
+so we have to filter between both before inserting any information within PC.
+
+If A-Instruction:
+    Load=0
+    Inc=1
+    return
+Else if C-Instruction:
+    // JMP control bits logic
+    If control bits == 0, 0, 0:
+        Load=0
+        Inc=1
+        return
+
+    // The following was achieved by comparing JMP bits and outputs of ALU
+    XOR(j1, zr)
+    XOR(j2, ng)
+    XOR(j3, !ng)
+
+    And then NOr3 between outputs of XOR
+
+    And put the output on PC(load)
+```
