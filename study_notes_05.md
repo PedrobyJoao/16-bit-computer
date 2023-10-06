@@ -70,3 +70,51 @@ Else if C-Instruction:
 
     And put the output on PC(load)
 ```
+
+I just finished. However, my Program Counter part, there is an overhead of hdl code. Other people's implementation is
+simplier.
+
+And I was also using Mux when I didn't need (since I was inputing constants)
+
+#### Boolean Algebra and set theory
+Ok, I learned one of the most important things of Boolean Algebra now. Actually, I remembered one of the most important things.
+When dealing with boolean expressions and truth tables, I have to remember that I can also play with sets theory.
+
+**AND is intersection and OR is Union** This is so useful because then I don't have to develop a canonical representation
+every time.
+
+Example:
+I wanted to know if the output is only greater than 0 (out > 0).
+
+I had the following knowledge:
+
+1. out = 0
+2. out >= 0
+```
+    out = 0     out => 0     out > 0
+        0           0           0
+        0           1           1
+        1           0           0
+        1           1           0
+```
+I can either develop the canonical representation OR 
+simply think: I want to know if it's greater than 0, ok. Numbers greater than 0, are numbers that
+are NOT equal 0 and ARE GREATER OR EQUAL THAN 0.
+
+In set theory terms: out > 0 is the intersection between the set NOT(out = 0) AND out => 0
+If the intersection contains out => 0 and everything with the exception of out = 0, then the result is out > 0
+
+#### Mux with constant inputs is equal And()
+When using constants as inputs for Mux, then I probably shouldn't be using Mux but an AND gate
+
+Example:
+```
+    Mux(a=false, b=bitDestMemory, sel=instructionType, out=writeM);
+Is equal
+    And(a=bitDestMemory, b=instructionType, out=writeM);
+```
+
+#### Others
+
+Another thing is my Program Counter part, there is an overhead of hdl code. Other people's implementation is
+simplier.

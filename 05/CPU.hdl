@@ -41,68 +41,131 @@ CHIP CPU {
     PARTS:
     // =================== Control Unit ===================
 
-    // Abstracting instruction
-    And16(a=instruction, b=outMPrev, out[0..2]=bitsJMP, out[3..5]=bitsDEST, out[6..11]=bitsALUControl,
-            out[12]=bitA, out[15]=bitType);
+    // Decoding instruction into small pieces
+    And16(a=instruction, b=instruction, out[3]=bitDestMemory, out[4]=bitDestDataRegister, out[5]=bitDestARegister,
+            out[6..11]=bitsALUControl, out[12]=bitA, out[15]=instructionType);
 
 
     // Address-Register part
     // We might use coming instruction if it's an A-Instruction, otherwise we'll get from outM
-    Mux16(a=instruction, b=outMPrev, sel=instruction[15], out=muxedAddress); // update A with current instruction or keep the A(t-1)?
-    ARegister(in=muxedAddress, load=bitsDEST[2],out=AddressRegisterValue, out=addressM);
+    Mux16(a=instruction, b=aluOutput, sel=instruction[15], out=muxedARegister); // update A with current instruction or keep the A(t-1)?
+
+    // If A-Instruction, load=1, otherwise we should check destination bits
+    // instruction[15]     bitDestARegister        out
+    //     0                   0                    1
+    //     0                   1                    1
+    //     1                   0                    0
+    //     1                   1                    1
+    // not(i) . not(b) + not(i) . b + i . b
+    // not(i) . not(b) + b . (not(i) + i)
+    // not(i) . not(b) + b
+    Not(in=instructionType, out=notInstructionType);
+    Not(in=bitDestARegister, out=notBitDestARegister);
+    And(a=notInstructionType, b=notBitDestARegister, out=notInstTypeANDNotBitDestARegister);
+    Or(a=notInstTypeANDNotBitDestARegister, b=bitDestARegister, out=loadARegister);
+    ARegister(in=muxedARegister, load=loadARegister, out=AddressRegisterValue, out[0..14]=addressM);
 
     // Decide next instruction
+    // It seems it's already being done when we send the result of ARegister to PC
 
     // =================== PC ===================
 
     // else if C-Instruction, jmp control bits logic
-    Xor(a=bitsJMP[0], b=instruction[0], out=jmpXor0);
-    Xor(a=bitsJMP[1], b=instruction[1], out=jmpXor1);
-    Xor(a=bitsJMP[2], b=instruction[2], out=jmpXor2);
 
-    Or3(a=jmpXor0, b=jmpXor1, c=jmpXor2, out=jmpOr3);
+    // Getting outGreaterThanZero
+    Not(in=outLessThanZero, out=outEqualOrGreaterThanZero);
+    // out = 0     out => 0     out > 0
+    //     0           0           0
+    //     0           1           1
+    //     1           0           0
+    //     1           1           0
+    // not(outEqualsZero) . outEqualOrGreaterThanZero
+    Not(in=outEqualsZero, out=notOutEqualsZero);
+    And(a=notOutEqualsZero, b=outEqualOrGreaterThanZero, out=outGreaterThanZero);
+
+    Xor(a=instruction[0], b=outGreaterThanZero, out=jmpXor0);
+    Xor(a=instruction[1], b=outEqualsZero, out=jmpXor1);
+    Xor(a=instruction[2], b=outLessThanZero, out=jmpXor2);
+
+    Or(a=jmpXor0, b=jmpXor1, out=jmpOrPart1);
+    Or(a=jmpXor2, b=jmpOrPart1, out=jmpOr3);
 
     Not(in=jmpOr3, out=loadIfNonNullJMPBits);
 
-    // if control bits == 0, 0, 0 => inc=1, load=0
-    Or3(a=bitsJMP[0], b=bitsJMP[1], c=bitsJMP[2], out=isNotNullJMPBits);
+    // if JNE (out != 0) == 1, 0, 1
+    // First of all, identify when we have this pattern with j1 . not(j2) . j3
+    // To out != 0 is easy, out != is simply Not(out=0)
+    Not(in=instruction[1], out=notJ2);
+    And(a=instruction[0], b=notJ2, out=andJ3notJ2);
+    And(a=instruction[2], b=andJ3notJ2, out=isJNE);
+    And(a=isJNE, b=notOutEqualsZero, out=JNECase);
 
-    Mux(a=0, b=loadIfNonNullJMPBits, sel=isNotNullJMPBits, out=loadIfCinstruction);
+    Mux(a=loadIfNonNullJMPBits, b=JNECase, sel=isJNE, out=loadJNE);
+
+    // if JLE (out <= 0) == 1, 1, 0
+    // JLE: j1 . j2 . not(j3)
+    Or(a=outEqualsZero, b=outLessThanZero, out=outLessOrEqualZero);
+    Not(in=instruction[0], out=notJ3);
+    And(a=instruction[2], b=instruction[1], out=andJ1J2);
+    And(a=andJ1J2, b=notJ3, out=isJLE);
+
+    And(a=isJLE, b=outLessOrEqualZero, out=JLECase);
+
+    Mux(a=loadJNE, b=JLECase, sel=isJLE, out=loadJLE);
+
+    // if JGE (out >= 0) == 0 1 1
+    Not(in=instruction[2], out=notJ1);
+    And(a=notJ1, b=andJ3J2, out=isJGE);
+    And(a=isJGE, b=outEqualOrGreaterThanZero, out=JGECase);
+
+    Mux(a=loadJLE, b=JGECase, sel=isJGE, out=loadJGE);
+
+    // if JMP == 1, 1, 1
+    And(a=instruction[0], b=instruction[1], out=andJ3J2);
+    And(a=andJ1J2, b=andJ3J2, out=isJMP);
+
+    Mux(a=loadJGE, b=true, sel=isJMP, out=loadJMP);
+
+    // if control bits == 0, 0, 0 => inc=1, load=0
+    Or(a=instruction[0], b=instruction[1], out=nonNullBitsOr1);
+    Or(a=instruction[2], b=nonNullBitsOr1, out=isNotNullJMPBits);
+
+    Mux(a=false, b=loadJMP, sel=isNotNullJMPBits, out=loadIfCinstruction);
 
     // if A-Instruction => inc=1, load=0
     // In this case, load=instruction[15] itself
 
     // Decide between loadIfCInstruction or loadIfAinstruction
-    Mux(a=0, b=loadIfCinstruction, sel=instruction[15], out=pcLoad);
+    Mux(a=false, b=loadIfCinstruction, sel=instruction[15], out=pcLoad);
 
     // They will always be the opposite since
     // either the CPU jumps to a X instruction or it increments 1
     Not(in=pcLoad, out=pcInc);
 
-    PC(in=AddressRegisterValue, load=pcLoad, inc=pcInc, reset=reset, out=pc);
+    PC(in=AddressRegisterValue, load=pcLoad, inc=pcInc, reset=reset, out[0..14]=pc);
 
     // =================== ALU ===================
 
     // Address/Memory acting as ALU's input part
-    Mux16(a=AddressRegisterValue, b=inM, sel=instruction[], out=ALUyInputAddressOrMemory);
+    Mux16(a=AddressRegisterValue, b=inM, sel=bitA, out=ALUyInputAddressOrMemory);
 
     // DataRegister part
-    DRegister(in=outMPrev, load=bitsDEST[1], out=DataRegisterValue);
+    DRegister(in=aluOutput, load=bitDestDataRegister, out=DataRegisterValue);
 
     // Finally, ALU
     ALU(x=DataRegisterValue, y=ALUyInputAddressOrMemory,
-        zx=,
-        nx=,
-        zy=,
-        ny=,
-        f=,
-        no=,
-
-        out=outM,
-        out=outMPrev,
+        zx=instruction[11],
+        nx=instruction[10],
+        zy=instruction[9],
+        ny=instruction[8],
+        f=instruction[7],
+        no=instruction[6],
+        out=aluOutput,
         zr=outEqualsZero,
         ng=outLessThanZero);
 
-    // WriteM part
-
+    // WriteM and outM part
+    // If A-Instruction, WriteM=0
+    Mux(a=false, b=bitDestMemory, sel=instructionType, out=writeM);
+    Mux16(a=false, b=aluOutput, sel=bitDestMemory, out=outM);
 }
