@@ -10,7 +10,8 @@ a **instruction memory** where instructions are stored (**as data are since both
 
 And for Universal Turing Machine, each block of tape could store a different kinda of computation (if I'm not mistaken).
 
-**CPU and its memory registers**: the CPU, in the Hack computer, has three internal components: **ALU**, **Registers**,
+**CPU and its memory registers**: the CPU, in the Hack computer, has three internal components: **ALU**, **Registers** and
+**Control Unit**
 
 - **Control Unit** is responsible for **DECODING and deciding** which instruction to fetch and execute next.
 - **Registers**: each register is a 16-bit word with a specific goal
