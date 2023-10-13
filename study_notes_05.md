@@ -118,3 +118,14 @@ Is equal
 
 Another thing is my Program Counter part, there is an overhead of hdl code. Other people's implementation is
 simplier.
+
+#### Where the hell the value from inM comes from? Who is setting it?
+I couldn't wrap my mind around the fact we're reading a value from memory but no one was setting the inM,
+we're just outputing the value of memory when setting the writeM to 1. WRONG!!!!
+
+`Memory(in=cpuOut, load=writeToMemory, address=memAddrToWrite, out=memoryInput);`
+
+Even if writeToMemory == 0, the output will be the value of the memory accordingly to the memory address passed as input.
+
+So, when do `@31`, we set the A register to 31 in binary and addressM=31(binary), therefore, it doesn't matter the input
+`cpuOut` or the load input `writeToMemory`, we're setting address of Memory to 31 and we will get the output back.
