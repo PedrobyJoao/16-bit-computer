@@ -19,6 +19,7 @@ type Parser struct {
 	file       *os.File
 	scanner    *bufio.Scanner
 	currentCmd string
+	Eof        bool
 }
 
 func NewParser(filename string) (*Parser, error) {
@@ -32,24 +33,31 @@ func NewParser(filename string) (*Parser, error) {
 		file:       file,
 		scanner:    scanner,
 		currentCmd: "",
+		Eof:        false,
 	}, nil
 }
 
 // Advance read the next line, setting p.currentCmd to the line's value if not a comment.
-// Returns an error if there is a general error with scanning but it returns nil if EOF
-func (p *Parser) Advance() error {
+// Returns an error if there is a general error with scanning but it returns nil if EOF.
+// Returns true only when it's not a comment and not EOF
+func (p *Parser) Advance() (bool, error) {
 	if p.scanner.Scan() {
 		line := p.scanner.Text()
 
+		line = strings.ReplaceAll(line, " ", "")
 		// Check if it's a commented line
 		if len(line) >= 2 && line[:2] == "//" {
-			return nil
+			return false, nil
 		}
 
-		p.currentCmd = strings.ReplaceAll(line, " ", "")
-		return nil
+		if line == "" {
+			return false, nil
+		}
+		p.currentCmd = line
+		return true, nil
 	}
-	return p.scanner.Err()
+	p.Eof = true
+	return false, p.scanner.Err()
 }
 
 // GetCommandType returns the command type based on the line string
@@ -115,7 +123,7 @@ func (p *Parser) GetCompMnemonic() (string, error) {
 		return strings.Split(p.currentCmd, ";")[0], nil
 	}
 
-	return "", fmt.Errorf("Invalid C-Command format!")
+	return "", fmt.Errorf("Invalid C-Command format, Command: %v", p.currentCmd)
 }
 
 // GetJumpMnemonic return the mnemonic for the Jump condition. If not C-Command,
