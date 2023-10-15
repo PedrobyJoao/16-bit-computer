@@ -3,6 +3,7 @@ package parser
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -53,7 +54,14 @@ func (p *Parser) Advance() (bool, error) {
 		if line == "" {
 			return false, nil
 		}
+
+		// Remove inline comments
+		if commentPos := strings.Index(line, "//"); commentPos != -1 {
+			line = line[:commentPos]
+		}
+
 		p.currentCmd = line
+		log.Print(p.currentCmd)
 		return true, nil
 	}
 	p.Eof = true
@@ -74,12 +82,17 @@ func (p *Parser) GetCommandType() CommandType {
 }
 
 // GetSymbol gets the value or symbol of a A-Instruction '@xxx' or a Label-Command '(xxx)'
+// returns true if dealing with a symbol, and false if dealing with a decimal number
 func (p *Parser) GetSymbol() (string, error) {
 	// check if A or L type
 	if strings.HasPrefix(p.currentCmd, "@") {
 		decimalOrSymbol := strings.TrimPrefix(p.currentCmd, "@")
 		return decimalOrSymbol, nil
+	} else if strings.HasPrefix(p.currentCmd, "(") {
+		decimalOrSymbol := strings.TrimPrefix(p.currentCmd, "(")
+		return decimalOrSymbol[:len(p.currentCmd)-2], nil
 	}
+
 	return "", fmt.Errorf("Line does not start with '@'")
 }
 

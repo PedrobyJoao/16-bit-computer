@@ -9,6 +9,7 @@ import (
 
 	"github.com/PedrobyJoao/nand-to-tetris-projects/06/hack_assembler/code"
 	"github.com/PedrobyJoao/nand-to-tetris-projects/06/hack_assembler/parser"
+	"github.com/PedrobyJoao/nand-to-tetris-projects/06/hack_assembler/symbol_table"
 )
 
 func main() {
@@ -25,6 +26,12 @@ func main() {
 		log.Fatalf("The provided file must have a .asm extension")
 	}
 
+	// insertin labels's symbols into symbol table
+	symbolTable := symbol_table.NewSymbolTable()
+	resolvingLabels(symbolTable, filename)
+	log.Print("\n\nFirst iteration ---------------------\n\n")
+
+	// second iteration through parse and translate the commands
 	p, err := parser.NewParser(filename)
 	if err != nil {
 		log.Fatalf("Failed to instantiate Parser, Error: %v", err)
@@ -49,6 +56,20 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
+
+			_, err = strconv.Atoi(symbolOrValue)
+			isNumber := err == nil
+
+			if !isNumber {
+				if _, ok := symbolTable.Table[symbolOrValue]; !ok {
+					symbolTable.AddNewSymbolEntry(symbolOrValue)
+				}
+				symbolAddr := strconv.Itoa(symbolTable.Table[symbolOrValue])
+				log.Print(symbolAddr)
+				symbolOrValue = symbolAddr
+			}
+
+			log.Print(symbolOrValue)
 			binaryNum, err := numStrToBinary(symbolOrValue)
 			if err != nil {
 				log.Fatal(err)
@@ -104,6 +125,42 @@ func main() {
 
 	// Optionally: log the success message
 	log.Printf("Machine code written to: %s", outFilename)
+}
+
+func resolvingLabels(symbolTable *symbol_table.SymbolTable, filename string) {
+	p, err := parser.NewParser(filename)
+	if err != nil {
+		log.Fatalf("Failed to instantiate Parser, Error: %v", err)
+	}
+	defer p.CloseAsmFile()
+
+	// Resolving labels
+	validCmdLines := -1
+	for {
+		hasCommand, err := p.Advance()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if p.Eof {
+			break
+		}
+		if !hasCommand {
+			continue
+		}
+
+		if p.GetCommandType() == parser.CmdL {
+			symbolOrValue, err := p.GetSymbol()
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Print(symbolOrValue, validCmdLines)
+			symbolTable.AddLabelSymbolEntry(symbolOrValue, validCmdLines+1)
+			log.Print("Do NOT Count line")
+		} else {
+			validCmdLines += 1
+			log.Print("Count line", validCmdLines)
+		}
+	}
 }
 
 // numStrToBinary takes a string representation of a number and returns its 15-bit binary representation as a string.
