@@ -20,7 +20,8 @@ If we access memory address 123, having the data-input=5, and the load=0. Then R
 
 #### Counter and the importance of time
 
-Regarding **Counters** (sequential chip) which increments x as in `out(t) = out(t - 1) + x` is specially important to **orchestrate a set, and sequential, instructions to be executed by the computer**. This is done by having each instruction addressed by an address, and the counter will increment, in the necessary order, the address of the instructions to be executed.
+Regarding **Counters** (sequential chip) which increments x as in `out(t) = out(t - 1) + x` is specially important to **orchestrate a set, and sequential, 
+instructions to be executed by the computer**. This is done by having each instruction addressed by an address, and the counter will increment, in the necessary order, the address of the instructions to be executed.
 
 Addr(123) = execute X, c++, Addr(124) = execute Y, c++,...
 

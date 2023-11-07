@@ -53,6 +53,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
+		cw.CommentCommand(p.CurrentCmd)
 		if p.GetCommandType() == parser.C_POP ||
 			p.GetCommandType() == parser.C_PUSH {
 			arg2, err := p.GetArg2()
