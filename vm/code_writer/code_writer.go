@@ -223,7 +223,9 @@ func (cw *CodeWriter) WritePushPop(command parser.CommandType, segment string, i
 				cw.file.WriteString("@R14" + "\n")
 				cw.file.WriteString("D=M" + "\n")
 				cw.file.WriteString("@R15" + "\n")
+				cw.file.WriteString("A=M" + "\n")
 				cw.file.WriteString("M=D" + "\n")
+				return
 			}
 
 			if segment == "local" {
@@ -248,6 +250,7 @@ func (cw *CodeWriter) WritePushPop(command parser.CommandType, segment string, i
 			cw.file.WriteString("@R14" + "\n")
 			cw.file.WriteString("D=M" + "\n")
 			cw.file.WriteString("@R15" + "\n")
+			cw.file.WriteString("A=M" + "\n")
 			cw.file.WriteString("M=D" + "\n")
 		}
 	}

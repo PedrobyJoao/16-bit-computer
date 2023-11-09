@@ -30,6 +30,7 @@ M=D
 @R14
 D=M
 @R15
+A=M
 M=D
 
 //push constant 21
@@ -73,6 +74,7 @@ M=D
 @R14
 D=M
 @R15
+A=M
 M=D
 
 //pop argument 1
@@ -98,6 +100,7 @@ M=D
 @R14
 D=M
 @R15
+A=M
 M=D
 
 //push constant 36
@@ -132,6 +135,7 @@ M=D
 @R14
 D=M
 @R15
+A=M
 M=D
 
 //push constant 42
@@ -175,6 +179,7 @@ M=D
 @R14
 D=M
 @R15
+A=M
 M=D
 
 //pop that 2
@@ -200,6 +205,7 @@ M=D
 @R14
 D=M
 @R15
+A=M
 M=D
 
 //push constant 510
@@ -233,17 +239,8 @@ M=D
 @R14
 D=M
 @R15
+A=M
 M=D
-D=M
-@R13
-D=D+M
-@R15
-M=D
-@R14
-D=M
-@R15
-M=D
-
 //push local 0
 @0
 D=A
