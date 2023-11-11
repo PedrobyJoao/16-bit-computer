@@ -1,8 +1,8 @@
 # Building a mini computer (hardware and software)
 Guided by the book "The elements of computing systems" (by Noam Nisan e Shimon Schocken), 
 I'm in practice building a mini and simple 16-bit computer. Implementing everything from
-the smallest chips (NAND, AND...), Registers, RAM, ALU, CPU on the hardware level. 
-But also Assembler, a Virtual Machine, a high-level programming language, Compiler, and finally
+the smallest chips (NAND, AND...), Registers, RAM, ALU, to the CPU on the hardware level. 
+But also an Assembler, a Virtual Machine, a high-level programming language, a Compiler, and finally
 a Operating System
 
 ## Specs
