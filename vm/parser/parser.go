@@ -92,6 +92,18 @@ func (p *Parser) GetCommandType() CommandType {
 		return C_PUSH
 	} else if strings.HasPrefix(p.CurrentCmd, "pop") {
 		return C_POP
+	} else if strings.HasPrefix(p.CurrentCmd, "label") {
+		return C_LABEL
+	} else if strings.HasPrefix(p.CurrentCmd, "goto") {
+		return C_GOTO
+	} else if strings.HasPrefix(p.CurrentCmd, "if-goto") {
+		return C_IF
+	} else if strings.HasPrefix(p.CurrentCmd, "function") {
+		return C_FUNCTION
+	} else if strings.HasPrefix(p.CurrentCmd, "return") {
+		return C_RETURN
+	} else if strings.HasPrefix(p.CurrentCmd, "call") {
+		return C_CALL
 	} else {
 		return C_ARITHMETIC
 	}
