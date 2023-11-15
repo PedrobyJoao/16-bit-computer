@@ -63,6 +63,13 @@ func main() {
 			cw.WritePushPop(p.GetCommandType(), arg1, arg2)
 		} else if p.GetCommandType() == parser.C_ARITHMETIC {
 			cw.WriteArithmetic(arg1)
+		} else if p.GetCommandType() == parser.C_LABEL {
+			cw.WriteLabel(arg1)
+		} else if p.GetCommandType() == parser.C_GOTO {
+			cw.WriteGoto(arg1)
+		} else if p.GetCommandType() == parser.C_IF {
+			cw.WriteIf(arg1)
 		}
+		cw.WriteJumpLine()
 	}
 }

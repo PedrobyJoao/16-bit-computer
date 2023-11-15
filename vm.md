@@ -25,6 +25,7 @@ Stack machine commands can be separated in four types:
 - Memory segments commands: transfer data between stack and virtual memory segments
 - Program flow (Branching commands): branching operations (aka labels and goto operations)
 - Function commands (subroutines): call functions and return from them
+
 ```
 d = (2-x)*(y+9)
 
@@ -72,7 +73,7 @@ pop d (stores top value into 'd')
 stack: []
 ```
 
-### VM Specification
+#### Questions
 To explain:
 - Besides being stack-based, it's also function-based: a VM program is separated in program units called functions 
 which are handled separated
@@ -85,7 +86,7 @@ during the program's execution, rather than at compile time)
 
 Questions:
 - Does VM also executes the code itself?
-ANSWER: Some of them, yes, they even take care of memory allocation and garbage collection
+ANSWER: No but some of them take care of memory allocation and garbage collection
 
 - Does VM/Compilers translates directly to the machine language code? No, right? They translate
 to the assembly language and the latter is responsable to parse to machine language, right?
@@ -99,3 +100,13 @@ so that the memory access is scoped depended on class, function, file, directory
 As for some questions regarding virtual memory segments, now I think I understood, it's the same
 deal as we had with pre-defined registers for assembly programming. This virtual memory contains
 segments that make the easy-access of abstraction's values created by the program itself.
+
+## VM Part 2 - Branching and Functions
+
+On the previous Part 1, we implemented the arithmetic operations and push/pop (access to the memory 
+segments) commands. Now, we'll deal with branching operations and functions.
+
+- Branching: labels and goto operations. This is kinda trivial to implement as the hack assembly language
+already makes use of labels and goto operations, we just have to really translate.
+- Functions: also called subroutines, procedures, or methods. This is more difficult to implement, every subroutine
+will share the same global stack but each one of them will be abstracted with its own piece of the stack called Frame.

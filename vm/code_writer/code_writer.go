@@ -48,6 +48,39 @@ func (cw *CodeWriter) CommentCommand(cmd string) {
 	cw.file.WriteString("//" + cmd + "\n")
 }
 
+// WriteJumpLine jumps one line
+func (cw *CodeWriter) WriteJumpLine() {
+	cw.file.WriteString("\n")
+}
+
+// WriteLabel : Writes the assembly code that is the translation of the given label command.
+func (cw *CodeWriter) WriteLabel(label string) {
+	cw.file.WriteString("(" + label + ")" + "\n")
+}
+
+// WriteGoto: Writes the assembly code that is the translation of the given goto command.
+func (cw *CodeWriter) WriteGoto(label string) {
+	cw.file.WriteString("@" + label + "\n")
+	cw.file.WriteString("0;JMP" + "\n")
+}
+
+// WriteIf: Writes the assembly code that is the translation of the given if-goto command.
+func (cw *CodeWriter) WriteIf(label string) {
+	// get stack's top addr and decrease SP by 1
+	cw.file.WriteString("@SP" + "\n")
+	cw.file.WriteString("M=M-1" + "\n")
+	cw.file.WriteString("A=M" + "\n")
+
+	// Get top's value, set it to 0
+	cw.file.WriteString("D=M" + "\n")
+	cw.file.WriteString("M=0" + "\n")
+
+	// If D != 0, jumps to label
+	cw.file.WriteString("@" + label + "\n")
+	cw.file.WriteString("D;JNE" + "\n")
+
+}
+
 // WriteArithmetic: Writes the assembly code that is the translation of the given arithmetic command.
 func (cw *CodeWriter) WriteArithmetic(command string) {
 	if command == "add" || command == "sub" ||
@@ -95,7 +128,6 @@ func (cw *CodeWriter) WriteArithmetic(command string) {
 			cw.file.WriteString("M=!M" + "\n")
 		}
 	}
-	cw.file.WriteString("\n")
 }
 
 // WritePushPop: Writes the assembly code that is the translation of the given command.
@@ -254,7 +286,6 @@ func (cw *CodeWriter) WritePushPop(command parser.CommandType, segment string, i
 			cw.file.WriteString("M=D" + "\n")
 		}
 	}
-	cw.file.WriteString("\n")
 }
 
 // close: Closes the output file.
