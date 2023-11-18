@@ -51,9 +51,16 @@ func main() {
 		}
 		arg1, err := p.GetArg1()
 		if err != nil {
-			log.Fatalf("%v", err)
+			log.Printf("Command doesn't have arg1: %v", err)
 		}
+
+		arg2, err := p.GetArg2()
+		if err != nil {
+			log.Printf("Command doesn't have arg2: %v", err)
+		}
+
 		cw.CommentCommand(p.CurrentCmd)
+
 		if p.GetCommandType() == parser.C_POP ||
 			p.GetCommandType() == parser.C_PUSH {
 			arg2, err := p.GetArg2()
@@ -69,7 +76,14 @@ func main() {
 			cw.WriteGoto(arg1)
 		} else if p.GetCommandType() == parser.C_IF {
 			cw.WriteIf(arg1)
+		} else if p.GetCommandType() == parser.C_FUNCTION {
+			cw.WriteFunction(arg1, arg2)
+		} else if p.GetCommandType() == parser.C_RETURN {
+			cw.WriteReturn()
+		} else if p.GetCommandType() == parser.C_CALL {
+			cw.WriteCall(arg1, arg2)
 		}
+
 		cw.WriteJumpLine()
 	}
 }

@@ -110,3 +110,17 @@ segments) commands. Now, we'll deal with branching operations and functions.
 already makes use of labels and goto operations, we just have to really translate.
 - Functions: also called subroutines, procedures, or methods. This is more difficult to implement, every subroutine
 will share the same global stack but each one of them will be abstracted with its own piece of the stack called Frame.
+
+### Virtualizing Stack, memory segments and all the operations
+All my VM-translator implementation is basically a parser which translates from the VM intermediary code to the 
+Hack assembly language. But I wonder if that was the ideal way to do it?
+
+Because one possibility was to really have a in-memory structs representing the stack and memory segments, keeping
+the state of all operations. And then, accordingly to this in-memory "RAM", I would write the values into the real
+RAM. And that implementation is the one that makes more sense because it's a real virtual machine as it's virtualizing
+the stack and all the memory segments.
+
+Note: even the error handling would be more managable with this method
+
+But I won't do this way, I'm too far ahead almost finishing my implementation. But after finishing, I'll search for
+other implementations and see if they implemented with this way.
