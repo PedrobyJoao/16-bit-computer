@@ -124,3 +124,8 @@ Note: even the error handling would be more managable with this method
 
 But I won't do this way, I'm too far ahead almost finishing my implementation. But after finishing, I'll search for
 other implementations and see if they implemented with this way.
+
+> #### Small update
+> This is being by far the longest project of this book.
+> It's hard but the complexity is the same as some previous projects.
+> The real problem is putting everything together and debugging!

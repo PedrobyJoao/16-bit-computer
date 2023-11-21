@@ -62,14 +62,13 @@ M=M+1
 
 //add
 @SP
-A=M
-A=A-1
+A=M-1
 D=M
 M=0
 @SP
 M=M-1
-A=M
-A=A-1
+@SP
+A=M-1
 D=D+M
 M=D
 
@@ -122,14 +121,13 @@ M=M+1
 
 //sub
 @SP
-A=M
-A=A-1
+A=M-1
 D=M
 M=0
 @SP
 M=M-1
-A=M
-A=A-1
+@SP
+A=M-1
 D=M-D
 M=D
 

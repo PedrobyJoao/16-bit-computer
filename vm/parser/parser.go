@@ -112,8 +112,7 @@ func (p *Parser) GetCommandType() CommandType {
 // Arg1 returns the first argument of the current command.
 func (p *Parser) GetArg1() (string, error) {
 	if p.GetCommandType() == C_RETURN {
-		return "", fmt.Errorf(
-			"C_RETURN doesn't have args, Command: %v", p.CurrentCmd)
+		return "", nil
 	}
 
 	parts := strings.Fields(p.CurrentCmd)

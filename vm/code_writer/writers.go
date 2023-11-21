@@ -9,7 +9,11 @@ import (
 
 // WriteLabel : Writes the assembly code that is the translation of the given label command.
 func (cw *CodeWriter) WriteLabel(label string) {
-	cw.file.WriteString("(" + cw.beingDefinedFunc + "$" + label + ")" + "\n")
+    if cw.beingDefinedFunc != "" {
+        cw.file.WriteString("(" + cw.beingDefinedFunc + "$" + label + ")" + "\n")
+    } else {
+        cw.file.WriteString("(" + label + ")" + "\n")
+    }
 }
 
 // WriteGoto: Writes the assembly code that is the translation of the given goto command.
@@ -86,7 +90,7 @@ func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
 	cw.WriteGoto(functionName)
 
 	// write (return-address)
-	cw.WriteLabel(returnLabel)
+	cw.file.WriteString("(" + returnLabel + ")" + "\n")
 
 	cw.currentFunc = functionName
 }
@@ -96,7 +100,7 @@ func (cw *CodeWriter) WriteFunction(functionName string, numLocals int) {
 	cw.beingDefinedFunc = functionName
 
 	// write (f)
-	cw.WriteLabel(functionName)
+	cw.file.WriteString("(" + functionName + ")" + "\n")
 
 	// initialize all local variables to 0 (remember, previously when calling we did LCL = SP)
 	for i := 0; i < numLocals; i++ {

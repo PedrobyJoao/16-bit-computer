@@ -1,7 +1,7 @@
 package code_writer
 
 // close: Closes the output file.
-func (cw *CodeWriter) close() {
+func (cw *CodeWriter) Close() {
 	cw.file.Close()
 }
 
@@ -20,4 +20,10 @@ func (cw *CodeWriter) CommentCommand(cmd string) {
 // WriteJumpLine jumps one line
 func (cw *CodeWriter) WriteJumpLine() {
 	cw.file.WriteString("\n")
+}
+
+// WriteDebugCommand makes it easy to know when a command is done when using
+// the cpu emulator
+func (cw *CodeWriter) WriteDebugCommand() {
+	cw.file.WriteString("@22222")
 }
