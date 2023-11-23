@@ -8,7 +8,7 @@ import (
 
 type CodeWriter struct {
 	file             *os.File
-	outFileName      string
+	currentVMFile    string
 	currentFunc      string // current executed func
 	previousFunc     string // previously executed func
 	beingDefinedFunc string
@@ -23,15 +23,19 @@ func NewCodeWriter(outputPath string) (*CodeWriter, error) {
 		return nil, err
 	}
 
-	// removing .asm and getting pure file name without extension
-	base := filepath.Base(outputPath)
-	fileName := strings.TrimSuffix(base, filepath.Ext(base))
-
 	s := NewStack()
 	return &CodeWriter{
-		file:        f,
-		outFileName: fileName,
-		stack:       s,
-		SP:          256,
+		file:  f,
+		stack: s,
+		SP:    256,
 	}, nil
+}
+
+// SetCurrentVMFile Sets the current VM file
+func (cw *CodeWriter) SetCurrentVMFile(currentVMFile string) {
+	// removing .asm and getting pure file name without extension
+	base := filepath.Base(currentVMFile)
+	fileName := strings.TrimSuffix(base, filepath.Ext(base))
+
+	cw.currentVMFile = fileName
 }

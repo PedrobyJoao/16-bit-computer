@@ -78,6 +78,7 @@ func translateFile(vmFilePath string, cw *code_writer.CodeWriter) error {
 	if err != nil {
 		return fmt.Errorf("Couldn't instantiate new parser, Error: %v", err)
 	}
+	cw.SetCurrentVMFile(vmFilePath)
 	for {
 		hasCommand, err := p.Advance()
 		if err != nil {
@@ -106,7 +107,7 @@ func translateFile(vmFilePath string, cw *code_writer.CodeWriter) error {
 		} else if p.GetCommandType() == parser.C_LABEL {
 			cw.WriteLabel(arg1)
 		} else if p.GetCommandType() == parser.C_GOTO {
-			cw.WriteGoto(arg1)
+			cw.WriteGoto(arg1, false)
 		} else if p.GetCommandType() == parser.C_IF {
 			cw.WriteIf(arg1)
 		} else if p.GetCommandType() == parser.C_FUNCTION {

@@ -9,17 +9,25 @@ import (
 
 // WriteLabel : Writes the assembly code that is the translation of the given label command.
 func (cw *CodeWriter) WriteLabel(label string) {
-    if cw.beingDefinedFunc != "" {
-        cw.file.WriteString("(" + cw.beingDefinedFunc + "$" + label + ")" + "\n")
-    } else {
-        cw.file.WriteString("(" + label + ")" + "\n")
-    }
+	if cw.beingDefinedFunc != "" {
+		cw.file.WriteString("(" + cw.beingDefinedFunc + "$" + label + ")" + "\n")
+	} else {
+		cw.file.WriteString("(" + label + ")" + "\n")
+	}
 }
 
 // WriteGoto: Writes the assembly code that is the translation of the given goto command.
-func (cw *CodeWriter) WriteGoto(label string) {
-	cw.file.WriteString("@" + label + "\n")
-	cw.file.WriteString("0;JMP" + "\n")
+func (cw *CodeWriter) WriteGoto(label string, fnc bool) {
+	if fnc {
+		cw.file.WriteString("@" + label + "\n")
+		cw.file.WriteString("0;JMP" + "\n")
+	} else if cw.beingDefinedFunc != "" {
+		cw.file.WriteString("@" + cw.beingDefinedFunc + "$" + label + "\n")
+		cw.file.WriteString("0;JMP" + "\n")
+	} else {
+		cw.file.WriteString("@" + label + "\n")
+		cw.file.WriteString("0;JMP" + "\n")
+	}
 }
 
 // WriteIf: Writes the assembly code that is the translation of the given if-goto command.
@@ -44,32 +52,38 @@ func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
 	returnLabel := "return_to_" + cw.currentFunc + "_from_" + functionName
 
 	// push return-label
+	cw.file.WriteString("// push return-label" + "\n")
 	cw.file.WriteString("@" + returnLabel + "\n")
 	cw.file.WriteString("D=A" + "\n")
 	cw.writePushDregister()
 
 	// push LCL
+	cw.file.WriteString("// push LCL" + "\n")
 	cw.file.WriteString("@LCL" + "\n")
 	cw.file.WriteString("D=M" + "\n")
 	cw.writePushDregister()
 
 	// push ARG
+	cw.file.WriteString("// push ARG" + "\n")
 	cw.file.WriteString("@ARG" + "\n")
 	cw.file.WriteString("D=M" + "\n")
 	cw.writePushDregister()
 
 	// push THIS
+	cw.file.WriteString("// push THIS" + "\n")
 	cw.file.WriteString("@THIS" + "\n")
 	cw.file.WriteString("D=M" + "\n")
 	cw.writePushDregister()
 
 	// push THAT
+	cw.file.WriteString("// push THAT" + "\n")
 	cw.file.WriteString("@THAT" + "\n")
 	cw.file.WriteString("D=M" + "\n")
 	cw.writePushDregister()
 
 	// ARG = SP - 5 - numArgs
 	// SP - 5 - numArgs = out
+	cw.file.WriteString("// ARG = SP - 5 - numArgs" + "\n")
 	cw.file.WriteString("@SP" + "\n")
 	cw.file.WriteString("D=M" + "\n")
 	cw.file.WriteString("@5" + "\n")
@@ -81,15 +95,18 @@ func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
 	cw.file.WriteString("M=D" + "\n")
 
 	// LCL = SP
+	cw.file.WriteString("// LCL = SP" + "\n")
 	cw.file.WriteString("@SP" + "\n")
 	cw.file.WriteString("D=M" + "\n")
 	cw.file.WriteString("@LCL" + "\n")
 	cw.file.WriteString("M=D" + "\n")
 
 	// goto f
-	cw.WriteGoto(functionName)
+	cw.file.WriteString("// goto " + functionName + "\n")
+	cw.WriteGoto(functionName, true)
 
 	// write (return-address)
+	cw.file.WriteString("// (return-address)" + "\n")
 	cw.file.WriteString("(" + returnLabel + ")" + "\n")
 
 	cw.currentFunc = functionName
@@ -260,7 +277,7 @@ func (cw *CodeWriter) WritePushPop(command parser.CommandType, segment string, i
 			// push static 3
 			// @Xxx.3 (Xxx being the filename)
 			// D=M
-			cw.file.WriteString(fmt.Sprintf("@%v.%d\n", cw.outFileName, index))
+			cw.file.WriteString(fmt.Sprintf("@%v.%d\n", cw.currentVMFile, index))
 			cw.file.WriteString("D=M" + "\n")
 		} else {
 			// get the index and assign to D
@@ -310,7 +327,7 @@ func (cw *CodeWriter) WritePushPop(command parser.CommandType, segment string, i
 		// D -> popped value
 
 		if segment == "static" {
-			cw.file.WriteString(fmt.Sprintf("@%v.%d\n", cw.outFileName, index))
+			cw.file.WriteString(fmt.Sprintf("@%v.%d\n", cw.currentVMFile, index))
 			cw.file.WriteString("M=D" + "\n")
 		} else if segment == "pointer" {
 			if index == 0 {
