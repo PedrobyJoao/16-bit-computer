@@ -1,5 +1,11 @@
 package code_writer
 
+import (
+	"crypto/rand"
+	"fmt"
+	"io"
+)
+
 // close: Closes the output file.
 func (cw *CodeWriter) Close() {
 	cw.file.Close()
@@ -26,4 +32,13 @@ func (cw *CodeWriter) WriteJumpLine() {
 // the cpu emulator
 func (cw *CodeWriter) WriteDebugCommand() {
 	cw.file.WriteString("@22222")
+}
+
+func generateRandomString() string {
+	// it may not be performatic. In that case, we change the following implemention
+	b := make([]byte, 10)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("a%x", b) // 'a' because label should not start with digit
 }

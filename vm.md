@@ -125,7 +125,23 @@ Note: even the error handling would be more managable with this method
 But I won't do this way, I'm too far ahead almost finishing my implementation. But after finishing, I'll search for
 other implementations and see if they implemented with this way.
 
+> ### Edit
+> No, it seems other people didn't do that way. But I mean, it's possible and easier to handle error, it could be
+> like a debugger mode or something
+
 > #### Small update
 > This is being by far the longest project of this book.
 > It's hard but the complexity is the same as some previous projects.
 > The real problem is putting everything together and debugging!
+
+#### NestedCall
+It's not working, the output is basically the same of the `compare` but they only differ on the `R5` register which
+it doesn't make sense as `R5` is a temporary register and shouldn't be evaluated, I'm using it as the temporary variable
+`FRAME`. Not sure what should I do for this.
+
+#### FibonacciElement
+Yes, I'm almost finished with this chapter but until now I didn't implement the logical conditions of `eq`, `gt` and `lt`.
+`StaticsTest` is working because it does not use these conditional operations.
+
+The reason why I didn't implement before was because I didn't succeed in reasoning how to implement without branching, and until 
+then, branching was not implemented yet. But now it's. I'll probably do with branching.
