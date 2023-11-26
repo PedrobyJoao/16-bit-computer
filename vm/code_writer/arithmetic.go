@@ -67,7 +67,9 @@ func (cw *CodeWriter) WriteArithmetic(command string) {
 		rndLabel := generateRandomString()
 
 		cw.file.WriteString("D=M-D" + "\n")
-		cw.file.WriteString(fmt.Sprintf("@%s\n", rndLabel))
+		// Get label address (reminder: it was labeled with func$labelName)
+		cw.file.WriteString(fmt.Sprintf("@%s$%s\n",
+			cw.beingDefinedFunc, rndLabel))
 
 		if command == "eq" {
 			cw.file.WriteString("D;JNE" + "\n")
