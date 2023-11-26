@@ -60,7 +60,7 @@ func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
 
 	// goto f
 	cw.file.WriteString("// goto " + functionName + "\n")
-	cw.WriteGoto(functionName, true)
+	cw.WriteGotoFunc(functionName)
 
 	// write (return-address)
 	cw.file.WriteString("// (return-address)" + "\n")

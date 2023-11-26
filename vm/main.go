@@ -107,7 +107,7 @@ func translateFile(vmFilePath string, cw *code_writer.CodeWriter) error {
 		} else if p.GetCommandType() == parser.C_LABEL {
 			cw.WriteLabel(arg1)
 		} else if p.GetCommandType() == parser.C_GOTO {
-			cw.WriteGoto(arg1, false)
+			cw.WriteGoto(arg1)
 		} else if p.GetCommandType() == parser.C_IF {
 			cw.WriteIf(arg1)
 		} else if p.GetCommandType() == parser.C_FUNCTION {

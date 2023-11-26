@@ -9,12 +9,15 @@ func (cw *CodeWriter) WriteLabel(label string) {
 	}
 }
 
+// WriteGotoFunc writes a goto command for a function
+func (cw *CodeWriter) WriteGotoFunc(label string) {
+	cw.file.WriteString("@" + label + "\n")
+	cw.file.WriteString("0;JMP" + "\n")
+}
+
 // WriteGoto: Writes the assembly code that is the translation of the given goto command.
-func (cw *CodeWriter) WriteGoto(label string, fnc bool) {
-	if fnc {
-		cw.file.WriteString("@" + label + "\n")
-		cw.file.WriteString("0;JMP" + "\n")
-	} else if cw.beingDefinedFunc != "" {
+func (cw *CodeWriter) WriteGoto(label string) {
+	if cw.beingDefinedFunc != "" {
 		cw.file.WriteString("@" + cw.beingDefinedFunc + "$" + label + "\n")
 		cw.file.WriteString("0;JMP" + "\n")
 	} else {
