@@ -12,8 +12,6 @@ type CodeWriter struct {
 	currentFunc      string // current executed func
 	previousFunc     string // previously executed func
 	beingDefinedFunc string
-	stack            *Stack
-	SP               int
 }
 
 // Constructor: Opens the output file/stream and gets ready to write into it.
@@ -23,11 +21,8 @@ func NewCodeWriter(outputPath string) (*CodeWriter, error) {
 		return nil, err
 	}
 
-	s := NewStack()
 	return &CodeWriter{
-		file:  f,
-		stack: s,
-		SP:    256,
+		file: f,
 	}, nil
 }
 
