@@ -6,7 +6,8 @@ import (
 
 // WriteCall writes the assembly code that is the translation of the given call command
 func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
-	returnLabel := "return_to_" + cw.currentFunc + "_from_" + functionName
+	returnLabel := "return_to_" + cw.currentFunc +
+		"_from_" + functionName + "_" + generateRandomString()
 
 	// push return-label
 	cw.file.WriteString("// push return-label" + "\n")
@@ -66,6 +67,7 @@ func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
 	cw.file.WriteString("// (return-address)" + "\n")
 	cw.file.WriteString("(" + returnLabel + ")" + "\n")
 
+	cw.previousFunc = cw.currentFunc
 	cw.currentFunc = functionName
 }
 
