@@ -38,6 +38,10 @@ func (cw *CodeWriter) WriteIf(label string) {
 	cw.file.WriteString("M=0" + "\n")
 
 	// If D != 0, jumps to label
-	cw.file.WriteString("@" + label + "\n")
+	if cw.beingDefinedFunc != "" {
+		cw.file.WriteString("@" + cw.beingDefinedFunc + "$" + label + "\n")
+	} else {
+		cw.file.WriteString("@" + label + "\n")
+	}
 	cw.file.WriteString("D;JNE" + "\n")
 }
