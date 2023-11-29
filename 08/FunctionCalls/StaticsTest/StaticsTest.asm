@@ -4,7 +4,7 @@ D=A
 @SP
 M=D
 // push return-label
-@return_to_sys.init_from_Sys.init
+@return_to_sys.init_from_Sys.init_af09300ff57dfcaa513c4
 D=A
 @SP
 A=M
@@ -61,7 +61,7 @@ M=D
 @Sys.init
 0;JMP
 // (return-address)
-(return_to_sys.init_from_Sys.init)
+(return_to_sys.init_from_Sys.init_af09300ff57dfcaa513c4)
 
 //function Class1.set 0
 (Class1.set)
@@ -128,13 +128,14 @@ M=M+1
 @22222//return
 @LCL
 D=M
-@R5
+@R7
 M=D
-@R5
+@R7
 D=M
+@5
 A=D-A
 D=M
-@R6
+@R8
 M=D
 @SP
 A=M-1
@@ -149,35 +150,35 @@ M=D
 D=M+1
 @SP
 M=D
-@R5
+@R7
 D=M
 @1
 A=D-A
 D=M
 @THAT
 M=D
-@R5
+@R7
 D=M
 @2
 A=D-A
 D=M
 @THIS
 M=D
-@R5
+@R7
 D=M
 @3
 A=D-A
 D=M
 @ARG
 M=D
-@R5
+@R7
 D=M
 @4
 A=D-A
 D=M
 @LCL
 M=D
-@R6
+@R8
 A=M
 0;JMP
 
@@ -217,13 +218,14 @@ M=D
 @22222//return
 @LCL
 D=M
-@R5
+@R7
 M=D
-@R5
+@R7
 D=M
+@5
 A=D-A
 D=M
-@R6
+@R8
 M=D
 @SP
 A=M-1
@@ -238,35 +240,35 @@ M=D
 D=M+1
 @SP
 M=D
-@R5
+@R7
 D=M
 @1
 A=D-A
 D=M
 @THAT
 M=D
-@R5
+@R7
 D=M
 @2
 A=D-A
 D=M
 @THIS
 M=D
-@R5
+@R7
 D=M
 @3
 A=D-A
 D=M
 @ARG
 M=D
-@R5
+@R7
 D=M
 @4
 A=D-A
 D=M
 @LCL
 M=D
-@R6
+@R8
 A=M
 0;JMP
 
@@ -335,13 +337,14 @@ M=M+1
 @22222//return
 @LCL
 D=M
-@R5
+@R7
 M=D
-@R5
+@R7
 D=M
+@5
 A=D-A
 D=M
-@R6
+@R8
 M=D
 @SP
 A=M-1
@@ -356,35 +359,35 @@ M=D
 D=M+1
 @SP
 M=D
-@R5
+@R7
 D=M
 @1
 A=D-A
 D=M
 @THAT
 M=D
-@R5
+@R7
 D=M
 @2
 A=D-A
 D=M
 @THIS
 M=D
-@R5
+@R7
 D=M
 @3
 A=D-A
 D=M
 @ARG
 M=D
-@R5
+@R7
 D=M
 @4
 A=D-A
 D=M
 @LCL
 M=D
-@R6
+@R8
 A=M
 0;JMP
 
@@ -424,13 +427,14 @@ M=D
 @22222//return
 @LCL
 D=M
-@R5
+@R7
 M=D
-@R5
+@R7
 D=M
+@5
 A=D-A
 D=M
-@R6
+@R8
 M=D
 @SP
 A=M-1
@@ -445,35 +449,35 @@ M=D
 D=M+1
 @SP
 M=D
-@R5
+@R7
 D=M
 @1
 A=D-A
 D=M
 @THAT
 M=D
-@R5
+@R7
 D=M
 @2
 A=D-A
 D=M
 @THIS
 M=D
-@R5
+@R7
 D=M
 @3
 A=D-A
 D=M
 @ARG
 M=D
-@R5
+@R7
 D=M
 @4
 A=D-A
 D=M
 @LCL
 M=D
-@R6
+@R8
 A=M
 0;JMP
 
@@ -500,7 +504,7 @@ M=M+1
 
 @22222//call Class1.set 2
 // push return-label
-@return_to__from_Class1.set
+@return_to_sys.init_from_Class1.set_a103a1c6a68e9d5f69ff0
 D=A
 @SP
 A=M
@@ -557,7 +561,7 @@ M=D
 @Class1.set
 0;JMP
 // (return-address)
-(return_to__from_Class1.set)
+(return_to_sys.init_from_Class1.set_a103a1c6a68e9d5f69ff0)
 
 @22222//pop temp 0 
 @SP
@@ -604,7 +608,7 @@ M=M+1
 
 @22222//call Class2.set 2
 // push return-label
-@return_to_Class1.set_from_Class2.set
+@return_to_Class1.set_from_Class2.set_aaca531f9b70c175e5044
 D=A
 @SP
 A=M
@@ -661,7 +665,7 @@ M=D
 @Class2.set
 0;JMP
 // (return-address)
-(return_to_Class1.set_from_Class2.set)
+(return_to_Class1.set_from_Class2.set_aaca531f9b70c175e5044)
 
 @22222//pop temp 0 
 @SP
@@ -690,7 +694,7 @@ M=D
 
 @22222//call Class1.get 0
 // push return-label
-@return_to_Class2.set_from_Class1.get
+@return_to_Class2.set_from_Class1.get_ae94c8f44fd9a993329b3
 D=A
 @SP
 A=M
@@ -747,11 +751,11 @@ M=D
 @Class1.get
 0;JMP
 // (return-address)
-(return_to_Class2.set_from_Class1.get)
+(return_to_Class2.set_from_Class1.get_ae94c8f44fd9a993329b3)
 
 @22222//call Class2.get 0
 // push return-label
-@return_to_Class1.get_from_Class2.get
+@return_to_Class1.get_from_Class2.get_a85613281278b3bf85e53
 D=A
 @SP
 A=M
@@ -808,7 +812,7 @@ M=D
 @Class2.get
 0;JMP
 // (return-address)
-(return_to_Class1.get_from_Class2.get)
+(return_to_Class1.get_from_Class2.get_a85613281278b3bf85e53)
 
 @22222//label WHILE
 (Sys.init$WHILE)

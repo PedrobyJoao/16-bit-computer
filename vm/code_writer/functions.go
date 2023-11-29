@@ -4,6 +4,11 @@ import (
 	"strconv"
 )
 
+const (
+	frame = "R7"
+	ret   = "R8"
+)
+
 // WriteCall writes the assembly code that is the translation of the given call command
 func (cw *CodeWriter) WriteCall(functionName string, numArgs int) {
 	returnLabel := "return_to_" + cw.currentFunc +
@@ -90,17 +95,14 @@ func (cw *CodeWriter) WriteFunction(functionName string, numLocals int) {
 
 // WriteReturn: Writes the assembly code that is the translation of the given return command.
 func (cw *CodeWriter) WriteReturn() {
-	// FRAME temporary variable under R5
-	// RET temporary variable under R6
-
 	// FRAME = LCL (frame is a temporary variable)
 	cw.file.WriteString("@LCL" + "\n")
 	cw.file.WriteString("D=M" + "\n")
-	cw.file.WriteString("@R5" + "\n")
+	cw.file.WriteString("@" + frame + "\n")
 	cw.file.WriteString("M=D" + "\n")
 
 	// RET = *(FRAME - 5)
-	cw.writeFromFrameTo("R6")
+	cw.writeFromFrameTo(ret)
 
 	// *ARG = pop()
 	cw.writePopToDregister()
@@ -127,7 +129,7 @@ func (cw *CodeWriter) WriteReturn() {
 	cw.writeFromFrameTo("LCL")
 
 	// goto RET (return address)
-	cw.file.WriteString("@R6" + "\n")
+	cw.file.WriteString("@" + ret + "\n")
 	cw.file.WriteString("A=M" + "\n")
 	cw.file.WriteString("0;JMP" + "\n")
 
@@ -137,7 +139,7 @@ func (cw *CodeWriter) WriteReturn() {
 // writeFromFrameTo do operations such as LCL = *(FRAME - 4) where LCL is passed as an argument
 // to this function
 func (cw *CodeWriter) writeFromFrameTo(dest string) {
-	cw.file.WriteString("@R5" + "\n")
+	cw.file.WriteString("@" + frame + "\n")
 	cw.file.WriteString("D=M" + "\n")
 
 	if dest == "LCL" {
@@ -148,7 +150,7 @@ func (cw *CodeWriter) writeFromFrameTo(dest string) {
 		cw.file.WriteString("@2" + "\n")
 	} else if dest == "THAT" {
 		cw.file.WriteString("@1" + "\n")
-	} else if dest == "RET" {
+	} else if dest == ret {
 		cw.file.WriteString("@5" + "\n")
 	}
 

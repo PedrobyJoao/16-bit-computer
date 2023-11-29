@@ -11,7 +11,7 @@ M=0
 @SP
 M=M+1
 
-//push local 0
+@22222//push local 0
 @0
 D=A
 @LCL
@@ -23,7 +23,7 @@ M=D
 @SP
 M=M+1
 
-//push local 1
+@22222//push local 1
 @1
 D=A
 @LCL
@@ -35,7 +35,7 @@ M=D
 @SP
 M=M+1
 
-//add
+@22222//add
 @SP
 A=M-1
 D=M
@@ -47,13 +47,12 @@ A=M-1
 D=D+M
 M=D
 
-//not
+@22222//not
 @SP
-A=M
-A=A-1
+A=M-1
 M=!M
 
-//push argument 0
+@22222//push argument 0
 @0
 D=A
 @ARG
@@ -65,7 +64,7 @@ M=D
 @SP
 M=M+1
 
-//add
+@22222//add
 @SP
 A=M-1
 D=M
@@ -77,7 +76,7 @@ A=M-1
 D=D+M
 M=D
 
-//push argument 1
+@22222//push argument 1
 @1
 D=A
 @ARG
@@ -89,7 +88,7 @@ M=D
 @SP
 M=M+1
 
-//sub
+@22222//sub
 @SP
 A=M-1
 D=M
@@ -101,16 +100,17 @@ A=M-1
 D=M-D
 M=D
 
-//return
+@22222//return
 @LCL
 D=M
-@R5
+@R7
 M=D
-@R5
+@R7
 D=M
+@5
 A=D-A
 D=M
-@R6
+@R8
 M=D
 @SP
 A=M-1
@@ -125,35 +125,36 @@ M=D
 D=M+1
 @SP
 M=D
-@R5
+@R7
 D=M
 @1
 A=D-A
 D=M
 @THAT
 M=D
-@R5
+@R7
 D=M
 @2
 A=D-A
 D=M
 @THIS
 M=D
-@R5
+@R7
 D=M
 @3
 A=D-A
 D=M
 @ARG
 M=D
-@R5
+@R7
 D=M
 @4
 A=D-A
 D=M
 @LCL
 M=D
-@R6
+@R8
 A=M
 0;JMP
 
+@22222
