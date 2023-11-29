@@ -145,3 +145,11 @@ Yes, I'm almost finished with this chapter but until now I didn't implement the 
 
 The reason why I didn't implement before was because I didn't succeed in reasoning how to implement without branching, and until 
 then, branching was not implemented yet. But now it's. I'll probably do with branching.
+
+#### Done!
+
+Everything is working now. The FRAME/RET temporary variables was being dealt wrongly, and the conditional operations `eq`, `gt`
+and `lt` were easily implemented with branching.
+
+Again, this was the longest project to finish, not because it's the most complex but the environment where we test is tough for
+debugging.
