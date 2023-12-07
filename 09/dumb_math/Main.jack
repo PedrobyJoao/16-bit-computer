@@ -1,0 +1,40 @@
+class Main {
+    function void main() {
+        // Do something
+        var int x;
+        var int y;
+        var int operatorType;
+
+        var DumbMath d;
+        var int r;
+
+        do Output.printString("Welcome to the smartest mathematician alive!");
+        do Output.println();
+        do Output.printString("Please, follow the next steps to choose to numbers.");
+        do Output.println();
+        let x = Keyboard.readInt("x: ");
+        let y = Keyboard.readInt("y: ");
+
+        do Output.printString("What kind of operation do you want to compute for the selected operands?");
+        do Output.println();
+        do Output.printString("1- addition");
+        do Output.println();
+        do Output.printString("2- subtraction");
+        do Output.println();
+
+        let operatorType = Keyboard.readInt("Select 1 or 2: ");
+
+        let d = DumbMath.new(x, y);
+
+        if (operatorType = 1) {
+            let r = d.add();
+        }
+        else {
+            let r = d.sub();
+        }
+
+
+        do Output.printInt(r);
+        return;
+    }
+}

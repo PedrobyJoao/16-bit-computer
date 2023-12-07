@@ -1,0 +1,20 @@
+/** DumbMath does dumb arithmetic operations between to operands */
+class DumbMath {
+    field int x;
+    field int y;
+
+    constructor DumbMath new(int xx, int yy) {
+        let x = xx;
+        let y = yy;
+        return this;
+    }
+
+    method int add() {
+        return Math.divide(x, y);
+    }
+
+    method int sub() {
+        return x + y;
+    }
+}
+

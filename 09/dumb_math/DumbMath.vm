@@ -1,0 +1,24 @@
+function DumbMath.new 0
+push constant 2
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 0
+push argument 1
+pop this 1
+push pointer 0
+return
+function DumbMath.add 0
+push argument 0
+pop pointer 0
+push this 0
+push this 1
+call Math.divide 2
+return
+function DumbMath.sub 0
+push argument 0
+pop pointer 0
+push this 0
+push this 1
+add
+return
