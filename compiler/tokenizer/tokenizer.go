@@ -1,7 +1,9 @@
 package tokenizer
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
@@ -44,6 +46,10 @@ var doubleSymbolMap = map[string]bool{
 }
 
 type Tokenizer struct {
+	reader            *bufio.Reader
+	currentToken      string
+	currentLine       string
+	unprocessedTokens []string
 }
 
 func NewTokenizer(filePath string) (*Tokenizer, error) {
@@ -57,7 +63,60 @@ func NewTokenizer(filePath string) (*Tokenizer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open file: %s", err)
 	}
+	r := bufio.NewReader(file)
 
-	scanner := bufio.NewScanner(file)
-	return &Tokenizer{}
+	return &Tokenizer{
+		reader: r,
+	}, nil
+}
+
+// GetCurrentToken returns the current token
+func (t *Tokenizer) GetCurrentToken() string {
+	return t.currentToken
+}
+
+// extractTokensFromNextLine
+func (t *Tokenizer) extractTokensFromNextLine() ([]string, error) {
+	line, err := t.reader.ReadString('\n')
+	if err != nil {
+		if err == io.EOF {
+			return []string{}, io.EOF
+		}
+		return []string{}, fmt.Errorf("Failed to read line: %s", err)
+	}
+
+	// ignoring leading and trailing whitespaces
+	line = strings.TrimSpace(line)
+	if len(line) == 0 {
+		return []string{}, nil
+	}
+
+	// Check if it's a commented line
+	if (len(line) >= 2 && line[:2] == "//") ||
+		(len(line) >= 3 && line[:3] == "/**") {
+		return []string{}, nil
+	}
+
+	// Remove inline comments
+	if commentPos := strings.Index(line, "//"); commentPos != -1 {
+		line = line[:commentPos]
+	}
+
+	words := strings.Fields(line)
+	// TODO: identify symbols within strings and expand this list of tokens
+
+	fmt.Printf("words: %v\n", words)
+	return words, nil
+}
+
+// Advance reads the next piece of text from the file
+func (t *Tokenizer) Advance() (bool, error) {
+	if len(t.unprocessedTokens) == 0 {
+		_, err := t.extractTokensFromNextLine()
+		if err != nil {
+			return false, err
+		}
+	}
+	// TODO: handle the available unprocessedTokens
+	return true, nil
 }
