@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -30,6 +31,8 @@ func main() {
 		if hasToken == false {
 			continue
 		}
+		tokenType := tokenizer.GetTokenType()
+		fmt.Printf("Token: %s, Type: %s\n", tokenizer.GetCurrentToken(), tokenType)
 
 	}
 }
