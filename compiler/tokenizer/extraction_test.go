@@ -22,9 +22,9 @@ func TestExtractTokensFromSlice(t *testing.T) {
 			want:  []string{"for", "(", "int", "i", "=", "0", ";", "i", "<=", "10", ";", "i", "++", ")", "{"},
 		},
 		{
-			name:  "let x = \"string constant testing\"",
-			input: []string{"let", "x", "=", "\"string", "constant", "testing\""},
-			want:  []string{"let", "x", "=", "\"string constant testing\""},
+			name:  "let x = \"string constant testing\";",
+			input: []string{"let", "x", "=", "\"string", "constant", "testing\";"},
+			want:  []string{"let", "x", "=", "\"string constant testing\"", ";"},
 		},
 	}
 	for _, tt := range tests {
@@ -61,9 +61,14 @@ func TestSplitStringBySymbol(t *testing.T) {
 			want: []string{"array", "[", "index", "]", ";"},
 		},
 		{
-			name: "Test #4",
+			name: "testing count++;",
 			s:    "count++;",
 			want: []string{"count", "++", ";"},
+		},
+		{
+			name: "testing ;",
+			s:    ";",
+			want: []string{";"},
 		},
 	}
 
