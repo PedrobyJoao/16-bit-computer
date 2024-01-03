@@ -7,25 +7,33 @@ import (
 
 func TestExtractTokensFromSlice(t *testing.T) {
 	tests := []struct {
-		name string
-		args []string
-		want []string
+		name  string
+		input []string
+		want  []string
 	}{
 		{
-			name: "func test(int a, int b){",
-			args: []string{"func", "test(int", "a,", "int", "b){"},
-			want: []string{"func", "test", "(", "int", "a", ",", "int", "b", ")", "{"},
+			name:  "func test(int a, int b){",
+			input: []string{"func", "test(int", "a,", "int", "b){"},
+			want:  []string{"func", "test", "(", "int", "a", ",", "int", "b", ")", "{"},
 		},
 		{
-			name: "for (int i = 0; i<=10; i++) {",
-			args: []string{"for", "(int", "i", "=", "0;", "i<=10;", "i++)", "{"},
-			want: []string{"for", "(", "int", "i", "=", "0", ";", "i", "<=", "10", ";", "i", "++", ")", "{"},
+			name:  "for (int i = 0; i<=10; i++) {",
+			input: []string{"for", "(int", "i", "=", "0;", "i<=10;", "i++)", "{"},
+			want:  []string{"for", "(", "int", "i", "=", "0", ";", "i", "<=", "10", ";", "i", "++", ")", "{"},
+		},
+		{
+			name:  "let x = \"string constant testing\"",
+			input: []string{"let", "x", "=", "\"string", "constant", "testing\""},
+			want:  []string{"let", "x", "=", "\"string constant testing\""},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := extractTokensFromSlice(tt.args); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("\noutput = %v\n want %v", got, tt.want)
+			if got := extractTokensFromSlice(tt.input); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("\noutput = %v\n want = %v", got, tt.want)
+				if len(got) != len(tt.want) {
+					t.Logf("\nlen(output) = %v and len(expected) = %v", len(got), len(tt.want))
+				}
 			}
 		})
 	}

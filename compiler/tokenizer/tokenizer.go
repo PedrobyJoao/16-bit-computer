@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -161,11 +162,42 @@ func (t *Tokenizer) extractTokensFromNextLine() ([]string, error) {
 // Example:
 // input: ["func", "test(int", "a,", "int", "b){"]
 // output: ["func", "test", "(", "int", "a", ",", "int", "b", ")", "{"]
+// Example (string constants):
+// input: ["let", "x", "=", ""string", "with", "whitespaces""]
+// output: ["let", "x", "=", ""string with whitespaces""]
+// Note: we keep the quotes within the string to identify it later as a string constant
 func extractTokensFromSlice(unformattedTokens []string) []string {
 	var tokens []string
+	var strConstToken string
+	handlingStrConstant := false
 
 	for _, s := range unformattedTokens {
-		tokens = append(tokens, splitStringBySymbol(s)...)
+		if s[0] == '"' && !handlingStrConstant {
+			// first quotes, starting a string constant
+			log.Printf(
+				"starting handled string constant. Current string: %v and current strConst: %v",
+				s, strConstToken,
+			)
+			strConstToken = strConstToken + s + " "
+			handlingStrConstant = true
+
+		} else if s[len(s)-1] == '"' && handlingStrConstant {
+			// last quotes, ending a string constant
+			log.Printf(
+				"ending handled string constant. Current string: %v and current strConst: %v",
+				s, strConstToken,
+			)
+			strConstToken = strConstToken + s
+			tokens = append(tokens, strConstToken)
+			handlingStrConstant = false
+
+		} else if handlingStrConstant {
+			// handling string between quote
+			strConstToken = strConstToken + s + " "
+		} else {
+			// All other cases not being string constants
+			tokens = append(tokens, splitStringBySymbol(s)...)
+		}
 		// TODO: handle string constants correct
 		// not working example: "string with whitespaces"
 	}
