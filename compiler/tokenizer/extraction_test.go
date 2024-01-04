@@ -70,6 +70,11 @@ func TestSplitStringBySymbol(t *testing.T) {
 			s:    ";",
 			want: []string{";"},
 		},
+		{
+			name: "testing '~exit'",
+			s:    "~exit",
+			want: []string{"~", "exit"},
+		},
 	}
 
 	for _, tt := range tests {

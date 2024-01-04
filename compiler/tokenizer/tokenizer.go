@@ -117,6 +117,10 @@ func NewTokenizer(filePath string) (*Tokenizer, error) {
 
 // GetCurrentToken returns the current token
 func (t *Tokenizer) GetCurrentToken() string {
+	// if string constant, remove quotes
+	if t.GetTokenType() == StrConstant {
+		return t.currentToken[1 : len(t.currentToken)-1]
+	}
 	return t.currentToken
 }
 
@@ -138,7 +142,8 @@ func (t *Tokenizer) extractTokensFromNextLine() ([]string, error) {
 
 	// Check if it's a commented line
 	if (len(line) >= 2 && line[:2] == "//") ||
-		(len(line) >= 3 && line[:3] == "/**") {
+		(len(line) >= 3 && line[:3] == "/**") ||
+		(len(line) >= 1 && line[0] == '*') {
 		return []string{}, nil
 	}
 

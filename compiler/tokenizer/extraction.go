@@ -82,11 +82,12 @@ func splitStringBySymbol(s string) []string {
 	var skipNextChar bool
 
 	for i, char := range s {
+		// symbols
 		if char == 38 ||
 			char >= 40 && char <= 47 ||
 			char >= 59 && char <= 62 ||
 			char == 91 || char == 93 ||
-			char == 123 || char == 125 {
+			char == 123 || char == 125 || char == 126 {
 
 			if nonSymbol != "" {
 				separatedStrings = append(separatedStrings, nonSymbol)
