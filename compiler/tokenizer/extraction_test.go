@@ -26,6 +26,11 @@ func TestExtractTokensFromSlice(t *testing.T) {
 			input: []string{"let", "x", "=", "\"string", "constant", "testing\";"},
 			want:  []string{"let", "x", "=", "\"string constant testing\"", ";"},
 		},
+		{
+			name:  "string constant with prefixed symbol",
+			input: []string{"let", "length", "=", "Keyboard.readInt(\"HOW", "MANY", "NUMBERS?", " \");"},
+			want:  []string{"let", "length", "=", "Keyboard", ".", "readInt", "(", "\"HOW MANY NUMBERS? \"", ")", ";"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
