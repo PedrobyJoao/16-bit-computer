@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
 
+	"github.com/PedrobyJoao/16-bit-computer/compiler/jack_analyzer"
 	"github.com/PedrobyJoao/16-bit-computer/compiler/tokenizer"
 )
 
@@ -20,6 +20,12 @@ func main() {
 		log.Fatalf("Failed to create tokenizer: %s", err)
 	}
 
+	xml, err := jack_analyzer.New(os.Args[1])
+	if err != nil {
+		log.Fatalf("Failed to create xml writer: %s", err)
+	}
+	xml.Write("<tokens>\n")
+
 	for {
 		hasToken, err := tokenizer.Advance()
 		if err != nil {
@@ -32,7 +38,8 @@ func main() {
 			continue
 		}
 		tokenType := tokenizer.GetTokenType()
-		fmt.Printf("Token: %s, Type: %s\n", tokenizer.GetCurrentToken(), tokenType)
-
+		xml.WriteValueTag(tokenizer.GetCurrentToken(), string(tokenType))
 	}
+	xml.Write("</tokens>")
+	xml.Close()
 }
