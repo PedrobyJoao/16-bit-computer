@@ -1,8 +1,9 @@
 package tokenizer
 
 import (
-	"log"
 	"strings"
+
+	"github.com/PedrobyJoao/16-bit-computer/compiler/utils"
 )
 
 // extractTokensFromSlice gets a non-formatted slice of strings that were
@@ -24,37 +25,59 @@ func extractTokensFromSlice(unformattedTokens []string) []string {
 	handlingStrConstant := false
 
 	for _, s := range unformattedTokens {
-		if s[0] == '"' && !handlingStrConstant {
-			// first quotes, starting a string constant
-			log.Printf(
-				"starting handled string constant. Current string: %v and current strConst: %v",
-				s, strConstToken,
-			)
-			strConstToken = strConstToken + s + " "
-			handlingStrConstant = true
+		if strings.Contains(s, `"`) {
+			if !handlingStrConstant {
 
-		} else if strings.Contains(s, `"`) && handlingStrConstant {
-			// last quotes, ending a string constant
-			log.Printf(
-				"ending handled string constant. Current string: %v and current strConst: %v",
-				s, strConstToken,
-			)
+				// Handling string before first quotes if any
+				quoteIndices := utils.FindRuneIndices(s, '"')
+				if quoteIndices[0] > 0 {
+					tokens = append(tokens, splitStringBySymbol(s[0:quoteIndices[0]])...)
+				}
 
-			// checking if there is anything after string constant as in: `end"));`
-			quoteIdx := strings.Index(s, `"`)
-			log.Printf("quoteIdx: %v and s: %v, len(s): %v", quoteIdx, s, len(s))
-			if quoteIdx+1 < len(s) {
-				strConstToken = strConstToken + s[:quoteIdx+1]
-				tokens = append(tokens, strConstToken)
-				// handle things after string constant
-				tokens = append(tokens, splitStringBySymbol(s[quoteIdx+1:])...)
+				// Handling string constant itself until the next quotes if any
+				// or until the end of the string
+				if len(quoteIndices) == 1 {
+					strConstToken = strConstToken + s[quoteIndices[0]:] + " "
+				} else {
+					// Handling case where there are two quotes in the string,
+					// and therefore the entire string constant
+					strConstToken = strConstToken + s[quoteIndices[0]+1:quoteIndices[1]]
+					tokens = append(tokens, strConstToken)
+					handlingStrConstant = false
+
+					// checking if there is anything else after the last quotes
+					if quoteIndices[1]+1 < len(s) {
+						tokens = append(tokens, splitStringBySymbol(s[quoteIndices[1]+1:])...)
+					}
+				}
+
+				handlingStrConstant = true
+				continue
 
 			} else {
-				strConstToken = strConstToken + s
-				tokens = append(tokens, strConstToken)
-			}
-			handlingStrConstant = false
+				// already handling string constant
 
+				// Note: for some strange reason, even though the string `s` is a result
+				// of splitting by whitespaces, there is a whitespace is some cases
+				// (e.g.: on the case of `("HOW MANY NUMBERS? ")`
+				// So let's remove all spaces from the string
+				s = strings.ReplaceAll(s, " ", "")
+
+				// checking if there is anything after string constant as in: `end"));`
+				quoteIdx := strings.Index(s, `"`)
+
+				if quoteIdx+1 < len(s) {
+					strConstToken = strConstToken + s[:quoteIdx+1]
+					tokens = append(tokens, strConstToken)
+					// handle things after string constant
+					tokens = append(tokens, splitStringBySymbol(s[quoteIdx+1:])...)
+
+				} else {
+					strConstToken = strConstToken + s
+					tokens = append(tokens, strConstToken)
+				}
+				handlingStrConstant = false
+			}
 		} else if handlingStrConstant {
 			// handling string between quote
 			strConstToken = strConstToken + s + " "
@@ -65,6 +88,12 @@ func extractTokensFromSlice(unformattedTokens []string) []string {
 	}
 	return tokens
 }
+
+// handleStringConstant handles string constant tokens which are coupled with
+// quotes `"`. Let's analyze the possible cases:
+// "string" -> ["string"]
+// "string with whitespaces" -> ["string with whitespaces"]
+// read.Int("string") -> [read, ., Int, (, "string", )]
 
 // splitStringBySymbol splits a string based on Hack symbols (an lexical
 // element), maintaining the symbol on the list. The result is a list of tokens.

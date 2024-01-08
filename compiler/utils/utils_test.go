@@ -34,7 +34,7 @@ func TestFindRuneIndices(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotIndices := findRuneIndices(tt.input, tt.matchRune)
+			gotIndices := FindRuneIndices(tt.input, tt.matchRune)
 			if len(gotIndices) != len(tt.wantIndices) {
 				t.Errorf("findRuneIndices() returned %d indices, want %d", len(gotIndices), len(tt.wantIndices))
 			}

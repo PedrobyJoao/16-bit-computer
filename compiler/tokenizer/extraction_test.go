@@ -6,6 +6,7 @@ import (
 )
 
 func TestExtractTokensFromSlice(t *testing.T) {
+	// Reminder: strings separated by whitespaces
 	tests := []struct {
 		name  string
 		input []string
@@ -34,10 +35,14 @@ func TestExtractTokensFromSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := extractTokensFromSlice(tt.input); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("\noutput = %v\n want = %v", got, tt.want)
-				if len(got) != len(tt.want) {
-					t.Logf("\nlen(output) = %v and len(expected) = %v", len(got), len(tt.want))
+			got := extractTokensFromSlice(tt.input)
+			if len(got) != len(tt.want) {
+				t.Errorf("\nLen() is different\noutput = %v\n want = %v", got, tt.want)
+			} else {
+				for i := range got {
+					if got[i] != tt.want[i] {
+						t.Errorf("\noutput[%v] = %q\n want[%v] = %q", i, got[i], i, tt.want[i])
+					}
 				}
 			}
 		})
