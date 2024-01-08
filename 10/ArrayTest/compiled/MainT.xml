@@ -29,9 +29,9 @@
 <symbol> . </symbol>
 <identifier> readInt </identifier>
 <symbol> ( </symbol>
-<stringConstant> HO </stringConstant>
-<identifier> MANY </identifier>
-<identifier> NUMBERS? </identifier>
+<stringConstant> HOW MANY NUMBERS?  </stringConstant>
+<symbol> ) </symbol>
+<symbol> ; </symbol>
 <keyword> let </keyword>
 <identifier> a </identifier>
 <symbol> = </symbol>
@@ -64,10 +64,9 @@
 <symbol> . </symbol>
 <identifier> readInt </identifier>
 <symbol> ( </symbol>
-<stringConstant> ENTE </stringConstant>
-<identifier> THE </identifier>
-<identifier> NEXT </identifier>
-<identifier> NUMBER: </identifier>
+<stringConstant> ENTER THE NEXT NUMBER:  </stringConstant>
+<symbol> ) </symbol>
+<symbol> ; </symbol>
 <keyword> let </keyword>
 <identifier> i </identifier>
 <symbol> = </symbol>
@@ -116,9 +115,9 @@
 <symbol> . </symbol>
 <identifier> printString </identifier>
 <symbol> ( </symbol>
-<stringConstant> TH </stringConstant>
-<identifier> AVERAGE </identifier>
-<identifier> IS: </identifier>
+<stringConstant> THE AVERAGE IS:  </stringConstant>
+<symbol> ) </symbol>
+<symbol> ; </symbol>
 <keyword> do </keyword>
 <identifier> Output </identifier>
 <symbol> . </symbol>

@@ -2,7 +2,6 @@ package jack_analyzer
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -38,12 +37,11 @@ func New(filePath string) (*XMLOutput, error) {
 
 func (x *XMLOutput) WriteValueTag(s, tag string) error {
 	if s == "<" {
-		log.Printf("here")
 		s = "&lt;"
 	} else if s == ">" {
 		s = "&gt;"
-    } else if s == "&" {
-        s = "&amp;"
+	} else if s == "&" {
+		s = "&amp;"
 	} else if s == ">=" {
 		s = "&ge;"
 	} else if s == "<=" {
