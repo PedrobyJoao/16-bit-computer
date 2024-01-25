@@ -77,4 +77,3 @@ LL(1) grammar are the formal languages which this is solved by having the first 
 non-terminal is down the tree. So just one look ahead is necessary, hence `1` in `LL(1)`
 
 With non LL(1) grammars, compilers have to do more than 1 look ahead to identify the non-terminal
-
