@@ -32,7 +32,6 @@ func New(inputPath string, outFile *os.File) *CompilationEngine {
 		log.Fatalf("Failed to create tokenizer: %s", err)
 	}
 
-	// TODO: should create a tokenizer
 	return &CompilationEngine{
 		tokenizer: tokenizer,
 		outFile:   outFile,
@@ -51,6 +50,13 @@ func (ce *CompilationEngine) WriteTerminal() {
 			ce.tokenizer.GetTokenType(),
 		))
 	ce.TokenizerWrapAdvance()
+}
+
+// WriteNonTerminalTag
+func (ce *CompilationEngine) WriteNonTerminal(tag string) {
+	tabs := strings.Repeat(" ", ce.whiteSpaces)
+	ce.outFile.WriteString(tabs)
+	ce.outFile.WriteString(fmt.Sprintf("<%s>\n", tag))
 }
 
 // TokenizerWrapAdvance advances the tokenizer until there is a token

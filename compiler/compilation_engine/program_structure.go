@@ -5,7 +5,7 @@ package compilation_engine
 // Context-free syntax: 'class' className '{' classVarDec* subroutineDec* '}'
 func (ce *CompilationEngine) CompileClass() {
 	ce.TokenizerWrapAdvance()
-	ce.outFile.WriteString("<class>\n")
+	ce.WriteNonTerminal("class")
 	ce.whiteSpaces += 2
 
 	// print out "class" which is a keyword terminal
@@ -33,7 +33,7 @@ func (ce *CompilationEngine) CompileClass() {
 	// print out '}' which is a symbol terminal still within the class non-terminal
 	ce.WriteTerminal()
 	ce.whiteSpaces -= 2
-	ce.outFile.WriteString("</class>\n")
+	ce.WriteNonTerminal("/class")
 
 	ce.outFile.Close()
 }
@@ -44,7 +44,7 @@ func (ce *CompilationEngine) CompileClass() {
 //
 // type: int | char | boolean | className
 func (ce *CompilationEngine) CompileClassVarDec() {
-	ce.outFile.WriteString("<classVarDec>\n")
+	ce.WriteNonTerminal("classVarDec")
 	ce.whiteSpaces += 2
 
 	// 'static' or 'field' are terminals keyword
@@ -69,7 +69,7 @@ func (ce *CompilationEngine) CompileClassVarDec() {
 	ce.WriteTerminal()
 
 	ce.whiteSpaces -= 2
-	ce.outFile.WriteString("</classVarDec>\n")
+	ce.WriteNonTerminal("/classVarDec")
 }
 
 // CompileSubroutine compiles a subroutine
@@ -80,7 +80,7 @@ func (ce *CompilationEngine) CompileClassVarDec() {
 //
 // subroutineBody = '{' varDec* statements '}'
 func (ce *CompilationEngine) CompileSubroutine() {
-	ce.outFile.WriteString("<subroutineDec>\n")
+	ce.WriteNonTerminal("subroutineDec")
 	ce.whiteSpaces += 2
 
 	// print out terminal keyword of constructor, function or method
@@ -105,14 +105,14 @@ func (ce *CompilationEngine) CompileSubroutine() {
 	ce.compileSubroutineBody()
 
 	ce.whiteSpaces -= 2
-	ce.outFile.WriteString("</subroutineDec>\n")
+	ce.WriteNonTerminal("/subroutineDec")
 }
 
 // compileSubroutineBody compiles a subroutine body
 //
 // Context-free syntax: '{' varDec* statements '}'
 func (ce *CompilationEngine) compileSubroutineBody() {
-	ce.outFile.WriteString("<subroutineBody>\n")
+	ce.WriteNonTerminal("subroutineBody")
 	ce.whiteSpaces += 2
 
 	// '{' is a terminal symbol
@@ -129,14 +129,14 @@ func (ce *CompilationEngine) compileSubroutineBody() {
 	ce.WriteTerminal()
 
 	ce.whiteSpaces -= 2
-	ce.outFile.WriteString("</subroutineBody>\n")
+	ce.WriteNonTerminal("/subroutineBody")
 }
 
 // CompileParameterList compiles a parameter list
 //
 // Context-free syntax: ((type varName) (',' type varName)*)?
 func (ce *CompilationEngine) CompileParameterList() {
-	ce.outFile.WriteString("<parameterList>\n")
+	ce.WriteNonTerminal("parameterList")
 	ce.whiteSpaces += 2
 
 	if ce.tokenizer.GetCurrentToken() != ")" {
@@ -159,14 +159,14 @@ func (ce *CompilationEngine) CompileParameterList() {
 	}
 
 	ce.whiteSpaces -= 2
-	ce.outFile.WriteString("</parameterList>\n")
+	ce.WriteNonTerminal("/parameterList")
 }
 
 // CompileVarDec compiles a var declaration
 // Content-free syntax:
 // 'var' type varName (',' varName)* ';'
 func (ce *CompilationEngine) CompileVarDec() {
-	ce.outFile.WriteString("<varDec>\n")
+	ce.WriteNonTerminal("varDec")
 	ce.whiteSpaces += 2
 
 	// 'var' is a terminal keyword
@@ -190,5 +190,5 @@ func (ce *CompilationEngine) CompileVarDec() {
 	ce.WriteTerminal()
 
 	ce.whiteSpaces -= 2
-	ce.outFile.WriteString("</varDec>\n")
+	ce.WriteNonTerminal("/varDec")
 }

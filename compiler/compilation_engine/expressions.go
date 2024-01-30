@@ -6,6 +6,7 @@ import (
 
 // CompileExpression compiles an expression
 func (ce *CompilationEngine) CompileExpression() {
+	ce.outFile.WriteString("TODO")
 }
 
 // CompileTerm compiles a term
@@ -22,6 +23,7 @@ func (ce *CompilationEngine) CompileTerm() {
 
 // CompileExpressionList compiles an expression list
 func (ce *CompilationEngine) CompileExpressionList() {
+	ce.outFile.WriteString("TODO")
 }
 
 // compileSubroutineCall compiles a subroutine call, it's a non-terminal
