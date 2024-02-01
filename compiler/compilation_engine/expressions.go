@@ -7,20 +7,20 @@ import (
 )
 
 // isOp returns true if the current token is an operator
-func (ce *CompilationEngine) isOp() bool {
+func isOp(token string) bool {
 	op := map[string]bool{
-		"+":  true,
-		"-":  true,
-		"*":  true,
-		"/":  true,
-		"&;": true,
-		"|":  true,
-		"<;": true,
-		">;": true,
-		"=":  true,
+		"+": true,
+		"-": true,
+		"*": true,
+		"/": true,
+		"&": true,
+		"|": true,
+		"<": true,
+		">": true,
+		"=": true,
 	}
 
-	if _, ok := op[ce.tokenizer.GetCurrentToken()]; ok {
+	if _, ok := op[token]; ok {
 		return true
 	}
 	return false
@@ -35,7 +35,7 @@ func (ce *CompilationEngine) CompileExpression() {
 
 	ce.CompileTerm()
 
-	for ce.isOp() {
+	for isOp(ce.tokenizer.GetCurrentToken()) {
 		// op is a terminal-symbol
 		ce.WriteTerminal()
 
@@ -56,7 +56,10 @@ func (ce *CompilationEngine) CompileTerm() {
 	ce.WriteNonTerminal("term")
 	ce.whiteSpaces += 2
 
-	if ce.tokenizer.GetTokenType() == tokenizer.Identifier {
+	if ce.tokenizer.GetTokenType() == tokenizer.Identifier ||
+		ce.tokenizer.GetTokenType() == tokenizer.IntConstant ||
+		ce.tokenizer.GetTokenType() == tokenizer.StrConstant ||
+		ce.tokenizer.GetTokenType() == tokenizer.Keyword {
 		// CASE: most of the or cases
 
 		nextToken, err := ce.tokenizer.DoOneLookAhead()

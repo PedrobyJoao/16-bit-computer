@@ -2,6 +2,7 @@ package compilation_engine
 
 import (
 	"fmt"
+	"log"
 )
 
 // CompileStatements compiles a sequence of statements not including '{' or '}'
@@ -23,7 +24,7 @@ func (ce *CompilationEngine) CompileStatements() {
 		} else if ce.tokenizer.GetCurrentToken() == "return" {
 			ce.CompileReturn()
 		} else {
-			panic(fmt.Sprintf("Unexpected statement token: %s",
+			log.Fatalf(fmt.Sprintf("Unexpected statement token: %s",
 				ce.tokenizer.GetCurrentToken()))
 		}
 	}
@@ -184,5 +185,7 @@ func (ce *CompilationEngine) CompileIf() {
 		// '}' is a terminal symbol
 		ce.WriteTerminal()
 	}
+
+	ce.whiteSpaces -= 2
 	ce.WriteNonTerminal("/ifStatement")
 }

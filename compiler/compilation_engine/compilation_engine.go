@@ -42,10 +42,19 @@ func (ce *CompilationEngine) WriteTerminal() {
 	tabs := strings.Repeat(" ", ce.whiteSpaces)
 	ce.outFile.WriteString(tabs)
 
+	currentToken := ce.tokenizer.GetCurrentToken()
+	if currentToken == "<" {
+		currentToken = "&lt;"
+	} else if currentToken == ">" {
+		currentToken = "&gt;"
+	} else if currentToken == "&" {
+		currentToken = "&amp;"
+	}
+
 	ce.outFile.WriteString(
 		fmt.Sprintf("<%s> %s </%s>\n",
 			ce.tokenizer.GetTokenType(),
-			ce.tokenizer.GetCurrentToken(),
+			currentToken,
 			ce.tokenizer.GetTokenType(),
 		))
 
