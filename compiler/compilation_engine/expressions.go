@@ -1,29 +1,132 @@
 package compilation_engine
 
 import (
-	"fmt"
+	"log"
+
+	"github.com/PedrobyJoao/16-bit-computer/compiler/tokenizer"
 )
 
+// isOp returns true if the current token is an operator
+func (ce *CompilationEngine) isOp() bool {
+	op := map[string]bool{
+		"+":  true,
+		"-":  true,
+		"*":  true,
+		"/":  true,
+		"&;": true,
+		"|":  true,
+		"<;": true,
+		">;": true,
+		"=":  true,
+	}
+
+	if _, ok := op[ce.tokenizer.GetCurrentToken()]; ok {
+		return true
+	}
+	return false
+}
+
 // CompileExpression compiles an expression
+// Content-free syntax:
+// term (op term)*
 func (ce *CompilationEngine) CompileExpression() {
-	ce.outFile.WriteString("TODO")
+	ce.WriteNonTerminal("expression")
+	ce.whiteSpaces += 2
+
+	ce.CompileTerm()
+
+	for ce.isOp() {
+		// op is a terminal-symbol
+		ce.WriteTerminal()
+
+		ce.CompileTerm()
+	}
+
+	ce.whiteSpaces -= 2
+	ce.WriteNonTerminal("/expression")
 }
 
 // CompileTerm compiles a term
-//
 // Note: it's NOT a terminal!
+// Content-free syntax:
+// integerConstant | stringConstant | keywordConstant | varName |
+// varName '[' expression ']' | subroutineCall | '(' expression ')' |
+// unaryOp term
 func (ce *CompilationEngine) CompileTerm() {
-	ce.outFile.WriteString(
-		fmt.Sprintf("<%s> %s </%s>\n",
-			ce.tokenizer.GetTokenType(),
-			ce.tokenizer.GetCurrentToken(),
-			ce.tokenizer.GetTokenType(),
-		))
+	ce.WriteNonTerminal("term")
+	ce.whiteSpaces += 2
+
+	if ce.tokenizer.GetTokenType() == tokenizer.Identifier {
+		// CASE: most of the or cases
+
+		nextToken, err := ce.tokenizer.DoOneLookAhead()
+		if err != nil {
+			log.Fatalf(
+				"Failed to do one look ahead while compiling term: %s",
+				err)
+		}
+
+		// varName[expression]
+		if nextToken == "[" {
+			// varName is a terminal-identifier
+			ce.WriteTerminal()
+
+			// '[' is a terminal-symbol
+			ce.WriteTerminal()
+
+			ce.CompileExpression()
+
+			// ']' is a terminal-symbol
+			ce.WriteTerminal()
+		} else if nextToken == "." {
+			// subroutineCall
+			ce.compileSubroutineCall()
+		} else {
+			// just one of the possible identifier
+			ce.WriteTerminal()
+		}
+
+	} else if ce.tokenizer.GetCurrentToken() == "(" {
+		// CASE: '(' expression ')'
+		// '(' is a terminal symbol
+		ce.WriteTerminal()
+
+		ce.CompileExpression()
+
+		// ')' is a terminal symbol
+		ce.WriteTerminal()
+	} else if ce.tokenizer.GetCurrentToken() == "-" || ce.tokenizer.GetCurrentToken() == "~" {
+		// CASE: unaryOp term
+		// unaryOp is a terminal symbol
+		ce.WriteTerminal()
+
+		ce.CompileTerm()
+	}
+
+	ce.whiteSpaces -= 2
+	ce.WriteNonTerminal("/term")
 }
 
 // CompileExpressionList compiles an expression list
+// Content-free syntax:
+// (expression (',' expression)*)?
 func (ce *CompilationEngine) CompileExpressionList() {
-	ce.outFile.WriteString("TODO")
+	ce.WriteNonTerminal("expressionList")
+	ce.whiteSpaces += 2
+
+	if ce.tokenizer.GetCurrentToken() != ")" {
+		ce.CompileExpression()
+
+		for ce.tokenizer.GetCurrentToken() == "," {
+			// print out ',' symbol terminal
+			ce.WriteTerminal()
+
+			ce.CompileExpression()
+		}
+
+	}
+	ce.whiteSpaces -= 2
+	ce.WriteNonTerminal("/expressionList")
 }
 
 // compileSubroutineCall compiles a subroutine call, it's a non-terminal

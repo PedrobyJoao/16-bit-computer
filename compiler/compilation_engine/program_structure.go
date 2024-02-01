@@ -1,10 +1,20 @@
 package compilation_engine
 
+import (
+	"log"
+)
+
 // CompileClass compiles a class.
 //
 // Context-free syntax: 'class' className '{' classVarDec* subroutineDec* '}'
 func (ce *CompilationEngine) CompileClass() {
-	ce.TokenizerWrapAdvance()
+	err := ce.tokenizer.WrapAdvance()
+	if err != nil {
+		log.Fatalf(
+			"Failed to advance tokenizer after starting to compile class: %s",
+			err)
+	}
+
 	ce.WriteNonTerminal("class")
 	ce.whiteSpaces += 2
 

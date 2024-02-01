@@ -2,7 +2,6 @@ package compilation_engine
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"strings"
@@ -49,7 +48,13 @@ func (ce *CompilationEngine) WriteTerminal() {
 			ce.tokenizer.GetCurrentToken(),
 			ce.tokenizer.GetTokenType(),
 		))
-	ce.TokenizerWrapAdvance()
+
+	err := ce.tokenizer.WrapAdvance()
+	if err != nil {
+		log.Fatalf(
+			"Failed to advance tokenizer after writing terminal: %s",
+			err)
+	}
 }
 
 // WriteNonTerminalTag
@@ -57,21 +62,4 @@ func (ce *CompilationEngine) WriteNonTerminal(tag string) {
 	tabs := strings.Repeat(" ", ce.whiteSpaces)
 	ce.outFile.WriteString(tabs)
 	ce.outFile.WriteString(fmt.Sprintf("<%s>\n", tag))
-}
-
-// TokenizerWrapAdvance advances the tokenizer until there is a token
-// TODO: move to tokenizer module
-func (ce *CompilationEngine) TokenizerWrapAdvance() {
-	var err error
-	var hasToken bool = false
-
-	for !hasToken {
-		hasToken, err = ce.tokenizer.Advance()
-		if err != nil {
-			if err == io.EOF {
-				return
-			}
-			log.Fatalf("Failed to advance tokenizer: %s", err)
-		}
-	}
 }

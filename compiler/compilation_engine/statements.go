@@ -45,6 +45,9 @@ func (ce *CompilationEngine) CompileDo() {
 	// subroutineCall is a non-terminal
 	ce.compileSubroutineCall()
 
+	// ';' is a terminal symbol
+	ce.WriteTerminal()
+
 	ce.whiteSpaces -= 2
 	ce.WriteNonTerminal("/doStatement")
 }
