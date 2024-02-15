@@ -83,4 +83,17 @@ func TestSymbolTable(t *testing.T) {
 	if err == nil {
 		t.Error("GetIndexOf(\"nonexistent\") expected error, got nil")
 	}
+
+	// Test ResetSymbolTable method
+	symbolTable.ResetSymbolTable()
+
+	// Check if the data map is empty
+	if len(symbolTable.data) != 0 {
+		t.Errorf("ResetSymbolTable() did not clear the data map, got %v", symbolTable.data)
+	}
+
+	// Check if the IndexTable map is empty
+	if len(symbolTable.IndexTable) != 0 {
+		t.Errorf("ResetSymbolTable() did not clear the IndexTable map, got %v", symbolTable.IndexTable)
+	}
 }
