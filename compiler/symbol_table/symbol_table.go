@@ -7,10 +7,10 @@ import (
 type Kind string
 
 const (
-	STATIC Kind = "static"
-	FIELD  Kind = "field"
-	ARG    Kind = "arg"
-	VAR    Kind = "var"
+	STATIC   Kind = "static"
+	FIELD    Kind = "field"
+	ARGUMENT Kind = "argument"
+	VAR      Kind = "var"
 )
 
 type SymbolTable struct {

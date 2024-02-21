@@ -6,7 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/PedrobyJoao/16-bit-computer/compiler/symbol_table"
 	"github.com/PedrobyJoao/16-bit-computer/compiler/tokenizer"
+	"github.com/PedrobyJoao/16-bit-computer/compiler/vm_writer"
 )
 
 // TODO: before printing and compiling stuffs that we're expecting to be
@@ -18,9 +20,14 @@ const (
 )
 
 type CompilationEngine struct {
-	tokenizer   *tokenizer.Tokenizer
-	outFile     *os.File
-	whiteSpaces int
+	tokenizer *tokenizer.Tokenizer
+	outFile   *os.File
+	vmWriter  *vm_writer.VmWriter
+
+	classSymbolTable      *symbol_table.SymbolTable
+	subroutineSymbolTable *symbol_table.SymbolTable
+	className             string
+	whiteSpaces           int
 }
 
 // New creates a new compilation engine receiving as an input a Tokenizer and
@@ -32,8 +39,11 @@ func New(inputPath string, outFile *os.File) *CompilationEngine {
 	}
 
 	return &CompilationEngine{
-		tokenizer: tokenizer,
-		outFile:   outFile,
+		tokenizer:             tokenizer,
+		vmWriter:              vm_writer.New(outFile),
+		classSymbolTable:      symbol_table.New(),
+		subroutineSymbolTable: symbol_table.New(),
+		outFile:               outFile,
 	}
 }
 

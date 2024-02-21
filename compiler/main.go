@@ -56,9 +56,9 @@ func main() {
 	}
 }
 
-func compileJackFile(outputPath string, compiledDirPath string) error {
+func compileJackFile(outputPath, compiledDirPath string) error {
 	fileName := filepath.Base(outputPath)
-	fileOutPath := filepath.Join(compiledDirPath, strings.TrimSuffix(fileName, ".jack")+".xml")
+	fileOutPath := filepath.Join(compiledDirPath, strings.TrimSuffix(fileName, ".jack")+".vm")
 	outFile, err := os.Create(fileOutPath)
 	if err != nil {
 		log.Fatalf("Failed to create output file: %v", err)

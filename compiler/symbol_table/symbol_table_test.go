@@ -18,7 +18,7 @@ func TestSymbolTable(t *testing.T) {
 	}{
 		{"x", "int", STATIC, 0, false},
 		{"y", "boolean", FIELD, 0, false},
-		{"z", "char", ARG, 0, false},
+		{"z", "char", ARGUMENT, 0, false},
 		{"w", "int", VAR, 0, false},
 		{"x", "int", STATIC, 0, true}, // Duplicate entry, should error
 	}
@@ -43,7 +43,7 @@ func TestSymbolTable(t *testing.T) {
 	}{
 		{STATIC, 1},
 		{FIELD, 1},
-		{ARG, 1},
+		{ARGUMENT, 1},
 		{VAR, 1},
 	}
 
