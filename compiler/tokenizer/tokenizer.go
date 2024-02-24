@@ -127,7 +127,7 @@ func (t *Tokenizer) GetCurrentToken() string {
 // DoOneLookAhead does one look ahead without altering the state of variables
 func (t *Tokenizer) DoOneLookAhead() (string, error) {
 	if t.currentTokenIdx+1 >= len(t.fileTokens) {
-		err := t.WrapAdvance()
+		err := t.AdvanceUntilToken()
 		if err != nil {
 			return "", fmt.Errorf("Failed to advance with wrapper: %s", err)
 		}
@@ -196,9 +196,9 @@ func (t *Tokenizer) Advance() (bool, error) {
 	return true, nil
 }
 
-// WrapAdvance advances the tokenizer until there is a token,
+// AdvanceUntilToken advances the tokenizer until there is a token,
 // ignoring empty lines
-func (t *Tokenizer) WrapAdvance() error {
+func (t *Tokenizer) AdvanceUntilToken() error {
 	var err error
 	var hasToken bool = false
 

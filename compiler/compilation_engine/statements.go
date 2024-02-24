@@ -9,7 +9,7 @@ import (
 // Content-free syntax:
 // statement*
 func (ce *CompilationEngine) CompileStatements() {
-	ce.WriteNonTerminal("statements")
+	// ce.writeNonTerminal("statements")
 	ce.whiteSpaces += 2
 
 	for ce.tokenizer.GetCurrentToken() != "}" {
@@ -30,107 +30,104 @@ func (ce *CompilationEngine) CompileStatements() {
 	}
 
 	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/statements")
+	// ce.writeNonTerminal("/statements")
 }
 
 // CompileDo compiles a do statement
 // Content-free syntax:
 // 'do' subroutineCall ';'
 func (ce *CompilationEngine) CompileDo() {
-	ce.WriteNonTerminal("doStatement")
+	// ce.writeNonTerminal("doStatement")
 	ce.whiteSpaces += 2
 
 	// 'do' is a terminal keyword
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// subroutineCall is a non-terminal
 	ce.compileSubroutineCall()
 
 	// ';' is a terminal symbol
-	ce.WriteTerminal()
-
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/doStatement")
+	ce.WrapperTokenizerAdvance()
 }
 
 // CompileLet compiles a let statement
 // Context-free syntax:
 // 'let' varName ('[' expression ']')? '=' expression ';'
 func (ce *CompilationEngine) CompileLet() {
-	ce.WriteNonTerminal("letStatement")
+	// ce.writeNonTerminal("letStatement")
 	ce.whiteSpaces += 2
 
 	// 'let' is a terminal keyword
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// varName is a terminal identifier
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	if ce.tokenizer.GetCurrentToken() == "[" {
 		// '[' is a terminal symbol
-		ce.WriteTerminal()
+		ce.WrapperTokenizerAdvance()
 
 		// expression is a non-terminal
 		ce.CompileExpression()
 
 		// ']' is a terminal symbol
-		ce.WriteTerminal()
+		ce.WrapperTokenizerAdvance()
 	}
 
 	// '=' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// expression is a non-terminal
 	ce.CompileExpression()
 
 	// ';' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/letStatement")
+	// ce.writeNonTerminal("/letStatement")
 }
 
 // CompileWhile compiles a while statement
 // Context-free syntax:
 // 'while' '(' expression ')' '{' statements '}'
 func (ce *CompilationEngine) CompileWhile() {
-	ce.WriteNonTerminal("whileStatement")
+	// ce.writeNonTerminal("whileStatement")
 	ce.whiteSpaces += 2
 
 	// 'while' is a terminal keyword
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// '(' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// expression is a non-terminal
 	ce.CompileExpression()
 
 	// ')' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// '{' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// statements is a non-terminal
 	ce.CompileStatements()
 
 	// '}' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/whileStatement")
+	// ce.writeNonTerminal("/whileStatement")
 }
 
 // CompileReturn compiles a return statement
 // Context-free syntax:
 // 'return' expression? ';'
 func (ce *CompilationEngine) CompileReturn() {
-	ce.WriteNonTerminal("returnStatement")
+	// ce.writeNonTerminal("returnStatement")
 	ce.whiteSpaces += 2
 
 	// 'return' is a terminal keyword
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	if ce.tokenizer.GetCurrentToken() != ";" {
 		// expression is a non-terminal
@@ -138,54 +135,54 @@ func (ce *CompilationEngine) CompileReturn() {
 	}
 
 	// ';' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/returnStatement")
+	// ce.writeNonTerminal("/returnStatement")
 }
 
 // CompileIf compiles an if statement, possibly with a trailling else clause
 // Content-free syntax:
 // 'if' '(' expression ')' '{' statements '}' ('else' '{' statements '}')?
 func (ce *CompilationEngine) CompileIf() {
-	ce.WriteNonTerminal("ifStatement")
+	// ce.writeNonTerminal("ifStatement")
 	ce.whiteSpaces += 2
 
 	// 'if' is a terminal keyword
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// '(' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// expression is a non-terminal
 	ce.CompileExpression()
 
 	// ')' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// '{' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// statements is a non-terminal
 	ce.CompileStatements()
 
 	// '}' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	if ce.tokenizer.GetCurrentToken() == "else" {
 		// 'else' is a terminal keyword
-		ce.WriteTerminal()
+		ce.WrapperTokenizerAdvance()
 
 		// '{' is a terminal symbol
-		ce.WriteTerminal()
+		ce.WrapperTokenizerAdvance()
 
 		// statements is a non-terminal
 		ce.CompileStatements()
 
 		// '}' is a terminal symbol
-		ce.WriteTerminal()
+		ce.WrapperTokenizerAdvance()
 	}
 
 	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/ifStatement")
+	// ce.writeNonTerminal("/ifStatement")
 }

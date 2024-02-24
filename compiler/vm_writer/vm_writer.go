@@ -12,6 +12,7 @@ const (
 	CONST    Segment = "constant"
 	ARGUMENT Segment = "argument"
 	LOCAL    Segment = "local"
+	STATIC   Segment = "static"
 	THIS     Segment = "this"
 	THAT     Segment = "that"
 	POINTER  Segment = "pointer"
@@ -35,10 +36,15 @@ type VmWriter struct {
 }
 
 // New creates a new VmWriter
-func New(out *os.File) *VmWriter {
+func New(outpath string) (*VmWriter, error) {
+	out, err := os.Create(outpath)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create output file: %s", err)
+	}
+
 	return &VmWriter{
 		outFile: out,
-	}
+	}, nil
 }
 
 // WritePush writes a VM push command

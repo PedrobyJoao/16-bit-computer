@@ -104,6 +104,17 @@ func (s *SymbolTable) GetIndexOf(name string) (int, error) {
 		name, s.data)
 }
 
+// GetIdentifierInfo returns the identifier info
+func (s *SymbolTable) GetIdentifierInfo(name string) (IdentifierInfo, error) {
+	if info, ok := s.data[name]; ok {
+		return info, nil
+	}
+
+	return IdentifierInfo{}, fmt.Errorf(
+		"identifier %s not declared within scope.\n Table symbol: %v",
+		name, s.data)
+}
+
 // ResetSymbolTable will reset both the data and indexTable. It'll be mainly used
 // by subroutines management
 func (s *SymbolTable) ResetSymbolTable() {

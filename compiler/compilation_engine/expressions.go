@@ -1,9 +1,9 @@
 package compilation_engine
 
 import (
-	"log"
-
+	"github.com/PedrobyJoao/16-bit-computer/compiler/symbol_table"
 	"github.com/PedrobyJoao/16-bit-computer/compiler/tokenizer"
+	"github.com/PedrobyJoao/16-bit-computer/compiler/vm_writer"
 )
 
 // isOp returns true if the current token is an operator
@@ -26,24 +26,44 @@ func isOp(token string) bool {
 	return false
 }
 
+// WriteOpVMCommand writes the VM command for an arithmetic operation
+// based on the given operator
+func (ce *CompilationEngine) WriteOpVMCommand(op string) {
+	switch op {
+	case "+":
+		ce.vmWriter.WriteArithmetic(vm_writer.ADD)
+	case "-":
+		ce.vmWriter.WriteArithmetic(vm_writer.SUB)
+	case "&":
+		ce.vmWriter.WriteArithmetic(vm_writer.AND)
+	case "|":
+		ce.vmWriter.WriteArithmetic(vm_writer.OR)
+	case "<":
+		ce.vmWriter.WriteArithmetic(vm_writer.LT)
+	case ">":
+		ce.vmWriter.WriteArithmetic(vm_writer.GT)
+	case "=":
+		ce.vmWriter.WriteArithmetic(vm_writer.EQ)
+	case "*":
+		ce.vmWriter.WriteCall("Math.multiply", 2)
+	}
+}
+
 // CompileExpression compiles an expression
 // Content-free syntax:
 // term (op term)*
 func (ce *CompilationEngine) CompileExpression() {
-	ce.WriteNonTerminal("expression")
-	ce.whiteSpaces += 2
-
 	ce.CompileTerm()
 
 	for isOp(ce.tokenizer.GetCurrentToken()) {
 		// op is a terminal-symbol
-		ce.WriteTerminal()
+		op := ce.tokenizer.GetCurrentToken()
+		ce.WrapperTokenizerAdvance()
 
 		ce.CompileTerm()
-	}
 
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/expression")
+		ce.WriteOpVMCommand(op)
+	}
 }
 
 // CompileTerm compiles a term
@@ -53,107 +73,96 @@ func (ce *CompilationEngine) CompileExpression() {
 // varName '[' expression ']' | subroutineCall | '(' expression ')' |
 // unaryOp term
 func (ce *CompilationEngine) CompileTerm() {
-	ce.WriteNonTerminal("term")
-	ce.whiteSpaces += 2
+	if ce.tokenizer.GetTokenType() == tokenizer.Identifier {
+		ce.WriteIdentifierTerm()
+		// ce.WrapperTokenizerAdvance() will be called within the above handler function
+	} else if ce.tokenizer.GetTokenType() == tokenizer.IntConstant {
+		ce.WriteIntConstTerm()
 
-	if ce.tokenizer.GetTokenType() == tokenizer.Identifier ||
-		ce.tokenizer.GetTokenType() == tokenizer.IntConstant ||
-		ce.tokenizer.GetTokenType() == tokenizer.StrConstant ||
-		ce.tokenizer.GetTokenType() == tokenizer.Keyword {
-		// CASE: most of the or cases
+	} else if ce.tokenizer.GetTokenType() == tokenizer.StrConstant {
+		ce.HandleStrConstTerm()
 
-		nextToken, err := ce.tokenizer.DoOneLookAhead()
-		if err != nil {
-			log.Fatalf(
-				"Failed to do one look ahead while compiling term: %s",
-				err)
-		}
-
-		// varName[expression]
-		if nextToken == "[" {
-			// varName is a terminal-identifier
-			ce.WriteTerminal()
-
-			// '[' is a terminal-symbol
-			ce.WriteTerminal()
-
-			ce.CompileExpression()
-
-			// ']' is a terminal-symbol
-			ce.WriteTerminal()
-		} else if nextToken == "." {
-			// subroutineCall
-			ce.compileSubroutineCall()
-		} else {
-			// just one of the possible identifier
-			ce.WriteTerminal()
-		}
+	} else if ce.tokenizer.GetTokenType() == tokenizer.Keyword {
+		ce.WriteKeywordConstTerm()
 
 	} else if ce.tokenizer.GetCurrentToken() == "(" {
-		// CASE: '(' expression ')'
-		// '(' is a terminal symbol
-		ce.WriteTerminal()
-
-		ce.CompileExpression()
-
-		// ')' is a terminal symbol
-		ce.WriteTerminal()
+		ce.WriteExpressionTerm()
 	} else if ce.tokenizer.GetCurrentToken() == "-" || ce.tokenizer.GetCurrentToken() == "~" {
-		// CASE: unaryOp term
-		// unaryOp is a terminal symbol
-		ce.WriteTerminal()
-
-		ce.CompileTerm()
+		ce.WriteUnaryOpTerm()
 	}
-
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/term")
 }
 
-// CompileExpressionList compiles an expression list
+func (ce *CompilationEngine) VMPushVar(identifierInfo *symbol_table.IdentifierInfo) {
+	if identifierInfo.Kind == symbol_table.ARGUMENT {
+		ce.vmWriter.WritePush(vm_writer.ARGUMENT, identifierInfo.Index)
+	} else if identifierInfo.Kind == symbol_table.STATIC {
+		ce.vmWriter.WritePush(vm_writer.STATIC, identifierInfo.Index)
+	} else if identifierInfo.Kind == symbol_table.VAR {
+		ce.vmWriter.WritePush(vm_writer.LOCAL, identifierInfo.Index)
+	}
+}
+
+// CompileExpressionList compiles an expression list.
+//
+// VM: It pushes the args for the being called function
+//
 // Content-free syntax:
 // (expression (',' expression)*)?
-func (ce *CompilationEngine) CompileExpressionList() {
-	ce.WriteNonTerminal("expressionList")
-	ce.whiteSpaces += 2
-
+func (ce *CompilationEngine) CompileExpressionList() int {
+	var expressionCount int
 	if ce.tokenizer.GetCurrentToken() != ")" {
 		ce.CompileExpression()
+		expressionCount += 1
 
 		for ce.tokenizer.GetCurrentToken() == "," {
 			// print out ',' symbol terminal
-			ce.WriteTerminal()
+			ce.WrapperTokenizerAdvance()
 
 			ce.CompileExpression()
+			expressionCount += 1
 		}
 
 	}
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/expressionList")
+	return expressionCount
 }
 
-// compileSubroutineCall compiles a subroutine call, it's a non-terminal
-// but at the same time it seems we shouldn't treat it as such and put it tags on it
+// compileSubroutineCall compiles a subroutine call, it's a non-terminal.
+//
 // Content-free syntax:
 // subroutineName '(' expressionList ')' | (className | varName) '.' subroutineName '(' expressionList ')'
 func (ce *CompilationEngine) compileSubroutineCall() {
+	var subroutineNoun string
+	var subroutinePredicate string
+
 	// subroutineName, className or varName are all identifiers-terminals
-	ce.WriteTerminal()
+	subroutineNoun = ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
 
 	// case it's a method
 	if ce.tokenizer.GetCurrentToken() == "." {
 		// '.' is a terminal symbol
-		ce.WriteTerminal()
+		ce.WrapperTokenizerAdvance()
 
 		// subroutineName is a terminal-identifier
-		ce.WriteTerminal()
+		subroutinePredicate = ce.tokenizer.GetCurrentToken()
+		ce.WrapperTokenizerAdvance()
 	}
 
 	// '(' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
-	ce.CompileExpressionList()
+	numArgs := ce.CompileExpressionList()
 
 	// ')' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
+
+	// VM call subroutine
+	if subroutinePredicate != "" {
+		ce.vmWriter.WriteCall(subroutineNoun+"."+subroutinePredicate, numArgs)
+	} else {
+		ce.vmWriter.WriteCall(subroutineNoun, numArgs)
+	}
+
+	// VM get return
+	ce.vmWriter.WritePop(vm_writer.TEMP, 0)
 }

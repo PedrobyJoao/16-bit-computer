@@ -14,20 +14,12 @@ func main() {
 	if len(os.Args) < 2 {
 		log.Fatalf("Usage: %s <filename>", os.Args[0])
 	}
-
 	// Get the file name from the first command-line argument
 	toCompilePath := os.Args[1]
-
 	// Check if the path is a directory or a file
 	info, err := os.Stat(toCompilePath)
 	if err != nil {
 		log.Fatalf("Error accessing the path: %v", err)
-	}
-
-	// Create the compiled directory if it doesn't exist
-	compiledDirPath := filepath.Join(toCompilePath, "compiled")
-	if err := os.MkdirAll(compiledDirPath, os.ModePerm); err != nil {
-		log.Fatalf("Failed to create compiled directory: %v", err)
 	}
 
 	if info.IsDir() {
@@ -37,17 +29,15 @@ func main() {
 				return err
 			}
 			if !info.IsDir() && strings.HasSuffix(info.Name(), ".jack") {
-				return compileJackFile(path, compiledDirPath)
+				return compileJackFile(path)
 			}
 			return nil
 		})
-
 		if err != nil {
 			log.Fatalf("Error walking through the directory: %v", err)
 		}
-
 	} else if strings.HasSuffix(toCompilePath, ".jack") {
-		err := compileJackFile(toCompilePath, compiledDirPath)
+		err := compileJackFile(toCompilePath)
 		if err != nil {
 			log.Fatalf("Failed to compile .jack file: %v", err)
 		}
@@ -56,17 +46,11 @@ func main() {
 	}
 }
 
-func compileJackFile(outputPath, compiledDirPath string) error {
-	fileName := filepath.Base(outputPath)
-	fileOutPath := filepath.Join(compiledDirPath, strings.TrimSuffix(fileName, ".jack")+".vm")
-	outFile, err := os.Create(fileOutPath)
-	if err != nil {
-		log.Fatalf("Failed to create output file: %v", err)
-	}
-	defer outFile.Close()
+func compileJackFile(jackFilePath string) error {
+	fileOutPath := strings.TrimSuffix(jackFilePath, ".jack") + ".vm"
 
-	// Create the compilation engine with the tokenizer and output file
-	compilationEngine := compilation_engine.New(outputPath, outFile)
+	// Create the compilation engine with the tokenizer and output path
+	compilationEngine := compilation_engine.New(jackFilePath, fileOutPath)
 	compilationEngine.CompileClass()
 
 	return nil
