@@ -51,8 +51,8 @@ func (s *SymbolTable) AddEntry(name, symbolType string, kind Kind) error {
 		index = currentIndex + 1
 	} else {
 		index = 0
-		s.IndexTable[kind] = index
 	}
+	s.IndexTable[kind] = index
 
 	s.data[name] = IdentifierInfo{
 		Type:  symbolType,
