@@ -25,6 +25,9 @@ type CompilationEngine struct {
 	subroutineSymbolTable *symbol_table.SymbolTable
 	className             string
 	whiteSpaces           int
+
+	// labelCounter identifies uniquely labels
+	labelCounter int
 }
 
 // New creates a new compilation engine receiving as an input a Tokenizer and

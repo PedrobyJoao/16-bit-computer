@@ -130,7 +130,7 @@ func (ce *CompilationEngine) CompileExpressionList() int {
 //
 // Content-free syntax:
 // subroutineName '(' expressionList ')' | (className | varName) '.' subroutineName '(' expressionList ')'
-func (ce *CompilationEngine) compileSubroutineCall() {
+func (ce *CompilationEngine) compileSubroutineCall(hasReturn bool) {
 	var subroutineNoun string
 	var subroutinePredicate string
 
@@ -163,6 +163,8 @@ func (ce *CompilationEngine) compileSubroutineCall() {
 		ce.vmWriter.WriteCall(subroutineNoun, numArgs)
 	}
 
-	// VM get return
-	ce.vmWriter.WritePop(vm_writer.TEMP, 0)
+	// if there is no return, ignore last pushed value return value
+	if !hasReturn {
+		ce.vmWriter.WritePop(vm_writer.TEMP, 0)
+	}
 }

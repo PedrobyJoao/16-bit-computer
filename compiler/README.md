@@ -92,3 +92,8 @@ And that is the goal of the Symbol Table, to map all these information for all d
 Subroutines. Then, whenever the VMWriter module generates a piece of code dependent on a variable, it'll get information from
 this symbol table.
 
+### Debugging
+
+1. After some long hours testing, I forgot that there is a HackCompiler provided by the tools. So I can mostly
+test comparing the output of my compiler to the output of the "oficial" HackCompiler.
+2. So many bugs testing `ConvertToBin`.. OMG

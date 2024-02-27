@@ -105,3 +105,13 @@ func (vm *VmWriter) Close() error {
 	}
 	return nil
 }
+
+// WriteComment writes a arbitrary string as a comment without jumping line
+func (vm *VmWriter) WriteComment(comment string) {
+	vm.outFile.WriteString(fmt.Sprintf("// %s\n", comment))
+}
+
+// WriteEmptyLine writes an empty line
+func (vm *VmWriter) WriteEmptyLine() {
+	vm.outFile.WriteString("\n")
+}

@@ -4,6 +4,7 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/PedrobyJoao/16-bit-computer/compiler/symbol_table"
 	"github.com/PedrobyJoao/16-bit-computer/compiler/vm_writer"
 )
 
@@ -36,10 +37,24 @@ func (ce *CompilationEngine) WriteIdentifierTerm() {
 		// TODO: VM commands
 		// case specific subroutineCall:
 		// (className | varName) '.' subroutineName '(' expressionList ')'
-		ce.compileSubroutineCall()
+		ce.compileSubroutineCall(true)
 	} else {
 		// TODO: VM commands
 		// Cases: `varName` | subroutineName '(' expressionList ')' |
+		identifierInfo, err := ce.GetIdentifierInfo(ce.tokenizer.GetCurrentToken())
+		if err != nil {
+			log.Fatalf("Failed to get identifier info: %s", err)
+		}
+
+		if identifierInfo.Kind == symbol_table.VAR {
+			ce.vmWriter.WritePush(vm_writer.LOCAL, identifierInfo.Index)
+		} else if identifierInfo.Kind == symbol_table.ARGUMENT {
+			ce.vmWriter.WritePush(vm_writer.ARGUMENT, identifierInfo.Index)
+		} else if identifierInfo.Kind == symbol_table.STATIC {
+			ce.vmWriter.WritePush(vm_writer.STATIC, identifierInfo.Index)
+		} else if identifierInfo.Kind == symbol_table.FIELD {
+			ce.vmWriter.WritePush(vm_writer.THIS, identifierInfo.Index)
+		}
 
 		ce.WrapperTokenizerAdvance()
 	}
@@ -64,7 +79,7 @@ func (ce *CompilationEngine) WriteKeywordConstTerm() {
 		ce.vmWriter.WritePush(vm_writer.CONST, 0)
 	} else if currentToken == "true" {
 		ce.vmWriter.WritePush(vm_writer.CONST, 1)
-		ce.vmWriter.WriteArithmetic(vm_writer.NOT)
+		ce.vmWriter.WriteArithmetic(vm_writer.NEG)
 	} else if currentToken == "this" {
 		ce.vmWriter.WritePush(vm_writer.POINTER, 0)
 	} else {
@@ -100,7 +115,14 @@ func (ce *CompilationEngine) WriteExpressionTerm() {
 // Case: unaryOp term
 func (ce *CompilationEngine) WriteUnaryOpTerm() {
 	// unaryOp is a terminal symbol
+	unaryOp := ce.tokenizer.GetCurrentToken()
 	ce.WrapperTokenizerAdvance()
 
 	ce.CompileTerm()
+
+	if unaryOp == "-" {
+		ce.vmWriter.WriteArithmetic(vm_writer.NEG)
+	} else if unaryOp == "~" {
+		ce.vmWriter.WriteArithmetic(vm_writer.NOT)
+	}
 }
