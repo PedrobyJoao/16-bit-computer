@@ -97,3 +97,27 @@ this symbol table.
 1. After some long hours testing, I forgot that there is a HackCompiler provided by the tools. So I can mostly
 test comparing the output of my compiler to the output of the "oficial" HackCompiler.
 2. So many bugs testing `ConvertToBin`.. OMG
+
+## Reminder: RAM organization
+
+Of course that I already messed with virtual segments in depth back on the chapters 7 and 8 but I think it's good
+to remind me myself here how the RAM is organized (stack, pointers, virtual segments, heap...).
+
+**Stack**: The stack contain the virtual segments of all being computed subroutines. The first addresses within RAM are the pointers
+referencing the current subroutine virtual segments.
+
+**Heap**: heap contains **objects** and **arrays** (to access them, use `this` for objects and `that` for arrays).
+
+RAM
+```
+0: SP (Stack Pointer)
+1: LCL (Local Pointer)
+2: ARG (Argument Pointer)
+3: THIS (THIS Pointer)
+4: THAT (THAT Pointer)
+5-13: TEMP
+constant and static
+Stack
+Heap
+I/O stuffs (screen, keyboard, ...)
+```

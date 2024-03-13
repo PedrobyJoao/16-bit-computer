@@ -12,9 +12,6 @@ import (
 // Content-free syntax:
 // statement*
 func (ce *CompilationEngine) CompileStatements() {
-	// ce.writeNonTerminal("statements")
-	ce.whiteSpaces += 2
-
 	for ce.tokenizer.GetCurrentToken() != "}" {
 		if ce.tokenizer.GetCurrentToken() == "let" {
 			ce.CompileLet()
@@ -31,9 +28,6 @@ func (ce *CompilationEngine) CompileStatements() {
 				ce.tokenizer.GetCurrentToken()))
 		}
 	}
-
-	ce.whiteSpaces -= 2
-	// ce.writeNonTerminal("/statements")
 }
 
 // CompileDo compiles a do statement
@@ -54,6 +48,8 @@ func (ce *CompilationEngine) CompileDo() {
 // Context-free syntax:
 // 'let' varName ('[' expression ']')? '=' expression ';'
 func (ce *CompilationEngine) CompileLet() {
+	var isArray bool
+
 	// 'let' is a terminal keyword
 	ce.WrapperTokenizerAdvance()
 
@@ -61,12 +57,28 @@ func (ce *CompilationEngine) CompileLet() {
 	varName := ce.tokenizer.GetCurrentToken()
 	ce.WrapperTokenizerAdvance()
 
+	// write value of compiled expression to varName
+	varInfo, err := ce.GetIdentifierInfo(varName)
+	if err != nil {
+		ce.subroutineSymbolTable.ShowSymbolTable("subroutine")
+		ce.classSymbolTable.ShowSymbolTable("class")
+		log.Fatalf(
+			"Error getting identifier info: %s\n Class: %s | var: %s",
+			err, ce.className, varName,
+		)
+	}
+
 	if ce.tokenizer.GetCurrentToken() == "[" {
+		isArray = true
 		// '[' is a terminal symbol
 		ce.WrapperTokenizerAdvance()
 
 		// expression is a non-terminal
 		ce.CompileExpression()
+		// last pushed value should be an int for the array idx
+		// add array base memory + idx
+		ce.pushVMVar(varInfo) // pushes the array base memory
+		ce.vmWriter.WriteArithmetic(vm_writer.ADD)
 
 		// ']' is a terminal symbol
 		ce.WrapperTokenizerAdvance()
@@ -81,13 +93,15 @@ func (ce *CompilationEngine) CompileLet() {
 	// ';' is a terminal symbol
 	ce.WrapperTokenizerAdvance()
 
-	// write value of compiled expression to varName
-	varInfo, err := ce.GetIdentifierInfo(varName)
-	if err != nil {
-		log.Fatalf("Error getting identifier info: %s", err)
+	if isArray {
+		// get result from temp (as suggested)
+		ce.vmWriter.WritePop(vm_writer.TEMP, 0)
+		ce.vmWriter.WritePop(vm_writer.POINTER, 1)
+		ce.vmWriter.WritePush(vm_writer.TEMP, 0)
+		ce.vmWriter.WritePop(vm_writer.THAT, 0)
+		return
 	}
 
-	// change the following code to use varInfo and writepop instead
 	if varInfo.Kind == symbol_table.VAR {
 		ce.vmWriter.WritePop(vm_writer.LOCAL, varInfo.Index)
 	} else if varInfo.Kind == symbol_table.ARGUMENT {

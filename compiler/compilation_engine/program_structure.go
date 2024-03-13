@@ -115,7 +115,7 @@ func (ce *CompilationEngine) CompileSubroutine() {
 	ce.WrapperTokenizerAdvance()
 
 	// compile subroutineBody
-	ce.compileSubroutineBody(subroutineName)
+	ce.compileSubroutineBody(subroutineName, subroutineKeyword)
 
 	ce.vmWriter.WriteEmptyLine() // for debugging purposes
 }
@@ -123,7 +123,8 @@ func (ce *CompilationEngine) CompileSubroutine() {
 // compileSubroutineBody compiles a subroutine body
 //
 // Context-free syntax: '{' varDec* statements '}'
-func (ce *CompilationEngine) compileSubroutineBody(subroutineName string) {
+func (ce *CompilationEngine) compileSubroutineBody(
+	subroutineName, subroutineKeyword string) {
 	// '{' is a terminal symbol
 	ce.WrapperTokenizerAdvance()
 
@@ -138,6 +139,18 @@ func (ce *CompilationEngine) compileSubroutineBody(subroutineName string) {
 		ce.subroutineSymbolTable.VarCount(symbol_table.VAR),
 	)
 
+	if subroutineKeyword == "constructor" {
+		// allocates memory for object based on the number of fields
+		numFields := ce.classSymbolTable.VarCount(symbol_table.FIELD)
+		ce.vmWriter.WritePush(vm_writer.CONST, numFields)
+		ce.vmWriter.WriteCall("Memory.alloc", 1)
+		ce.vmWriter.WritePop(vm_writer.POINTER, 0)
+	} else if subroutineKeyword == "method" {
+		// this is the object to be acted on
+		ce.vmWriter.WritePush(vm_writer.ARGUMENT, 0)
+		ce.vmWriter.WritePop(vm_writer.POINTER, 0)
+	}
+
 	ce.CompileStatements()
 
 	// '}' is a terminal symbol
@@ -151,14 +164,10 @@ func (ce *CompilationEngine) CompileParameterList(subroutineKeyword string) {
 	if ce.tokenizer.GetCurrentToken() != ")" {
 		varKind := symbol_table.ARGUMENT
 
-		// If a method, the first argument is 'this' (the object to be acted on)
 		if subroutineKeyword == "method" {
+			// the first argument is 'this' (the object to be acted on)
 			varName := "this"
 			ce.subroutineSymbolTable.AddEntry(varName, ce.className, varKind)
-
-			// write to .vm
-			ce.vmWriter.WritePush(vm_writer.ARGUMENT, 0)
-			ce.vmWriter.WritePop(vm_writer.POINTER, 0)
 		}
 
 		// type is either a keyword or an identifier (terminal)

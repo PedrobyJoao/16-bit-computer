@@ -1,7 +1,11 @@
 package compilation_engine
 
 import (
+	"fmt"
+	"io/fs"
 	"log"
+	"path/filepath"
+	"strings"
 
 	"github.com/PedrobyJoao/16-bit-computer/compiler/symbol_table"
 	"github.com/PedrobyJoao/16-bit-computer/compiler/tokenizer"
@@ -18,13 +22,12 @@ const (
 
 type CompilationEngine struct {
 	tokenizer *tokenizer.Tokenizer
-	// outFile   *os.File
-	vmWriter *vm_writer.VmWriter
+	vmWriter  *vm_writer.VmWriter
 
 	classSymbolTable      *symbol_table.SymbolTable
 	subroutineSymbolTable *symbol_table.SymbolTable
+	allAppClasses         map[string]bool
 	className             string
-	whiteSpaces           int
 
 	// labelCounter identifies uniquely labels
 	labelCounter int
@@ -43,12 +46,17 @@ func New(inputPath, outputPath string) *CompilationEngine {
 		log.Fatalf("Failed to create vm writer: %s", err)
 	}
 
+	allAppClasses, err := getAwareOfOtherClasses(filepath.Dir(inputPath))
+	if err != nil {
+		log.Fatalf("Failed to get aware of other classes: %s", err)
+	}
+
 	return &CompilationEngine{
 		tokenizer:             tokenizer,
 		vmWriter:              vmWriter,
 		classSymbolTable:      symbol_table.New(),
 		subroutineSymbolTable: symbol_table.New(),
-		// outFile:               outFile,
+		allAppClasses:         allAppClasses,
 	}
 }
 
@@ -60,38 +68,25 @@ func (ce *CompilationEngine) WrapperTokenizerAdvance() {
 	}
 }
 
-// WriteTerminalTag
-// func (ce *CompilationEngine) WriteTerminal() {
-// 	tabs := strings.Repeat(" ", ce.whiteSpaces)
-// 	ce.outFile.WriteString(tabs)
-//
-// 	currentToken := ce.tokenizer.GetCurrentToken()
-// 	if currentToken == "<" {
-// 		currentToken = "&lt;"
-// 	} else if currentToken == ">" {
-// 		currentToken = "&gt;"
-// 	} else if currentToken == "&" {
-// 		currentToken = "&amp;"
-// 	}
-//
-// 	ce.outFile.WriteString(
-// 		fmt.Sprintf("<%s> %s </%s>\n",
-// 			ce.tokenizer.GetTokenType(),
-// 			currentToken,
-// 			ce.tokenizer.GetTokenType(),
-// 		))
-//
-// 	err := ce.tokenizer.WrapAdvance()
-// 	if err != nil {
-// 		log.Fatalf(
-// 			"Failed to advance tokenizer after writing terminal: %s",
-// 			err)
-// 	}
-// }
-
-// WriteNonTerminalTag
-// func (ce *CompilationEngine) WriteNonTerminal(tag string) {
-// 	tabs := strings.Repeat(" ", ce.whiteSpaces)
-// 	ce.outFile.WriteString(tabs)
-// 	ce.outFile.WriteString(fmt.Sprintf("<%s>\n", tag))
-// }
+// getAwareOfOtherClasses checks other available classes within the directory or
+// child directories. If it finds one, it adds it to the allAppClasses map.
+func getAwareOfOtherClasses(rootAppPath string) (map[string]bool, error) {
+	allAppClasses := make(map[string]bool)
+	err := filepath.WalkDir(rootAppPath, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() {
+			ext := filepath.Ext(d.Name())
+			if ext == ".jack" || ext == ".vm" {
+				classname := strings.TrimSuffix(d.Name(), ext)
+				allAppClasses[classname] = true
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return allAppClasses, fmt.Errorf("error walking through directories: %w", err)
+	}
+	return allAppClasses, nil
+}

@@ -4,7 +4,6 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/PedrobyJoao/16-bit-computer/compiler/symbol_table"
 	"github.com/PedrobyJoao/16-bit-computer/compiler/vm_writer"
 )
 
@@ -24,37 +23,45 @@ func (ce *CompilationEngine) WriteIdentifierTerm() {
 	if nextToken == "[" {
 		// TODO: VM commands
 		// varName is a terminal-identifier
+		varName := ce.tokenizer.GetCurrentToken()
+		varInfo, err := ce.GetIdentifierInfo(varName)
+		if err != nil {
+			ce.subroutineSymbolTable.ShowSymbolTable("subroutine")
+			ce.classSymbolTable.ShowSymbolTable("class")
+			log.Fatalf(
+				"Error getting identifier info: %s\n Class: %s | var: %s",
+				err, ce.className, varName,
+			)
+		}
 		ce.WrapperTokenizerAdvance()
 
 		// '[' is a terminal-symbol
 		ce.WrapperTokenizerAdvance()
 
 		ce.CompileExpression()
+		// array index already pushed by compileExpression
+		// add array base memory + idx
+		ce.pushVMVar(varInfo) // pushes the array base memory
+		ce.vmWriter.WriteArithmetic(vm_writer.ADD)
+		ce.vmWriter.WritePop(vm_writer.POINTER, 1)
+		ce.vmWriter.WritePush(vm_writer.THAT, 0)
 
 		// ']' is a terminal-symbol
 		ce.WrapperTokenizerAdvance()
 	} else if nextToken == "." {
-		// TODO: VM commands
 		// case specific subroutineCall:
 		// (className | varName) '.' subroutineName '(' expressionList ')'
 		ce.compileSubroutineCall(true)
 	} else {
-		// TODO: VM commands
 		// Cases: `varName` | subroutineName '(' expressionList ')' |
 		identifierInfo, err := ce.GetIdentifierInfo(ce.tokenizer.GetCurrentToken())
 		if err != nil {
+			ce.subroutineSymbolTable.ShowSymbolTable("subroutine")
+			ce.classSymbolTable.ShowSymbolTable("class")
 			log.Fatalf("Failed to get identifier info: %s", err)
 		}
 
-		if identifierInfo.Kind == symbol_table.VAR {
-			ce.vmWriter.WritePush(vm_writer.LOCAL, identifierInfo.Index)
-		} else if identifierInfo.Kind == symbol_table.ARGUMENT {
-			ce.vmWriter.WritePush(vm_writer.ARGUMENT, identifierInfo.Index)
-		} else if identifierInfo.Kind == symbol_table.STATIC {
-			ce.vmWriter.WritePush(vm_writer.STATIC, identifierInfo.Index)
-		} else if identifierInfo.Kind == symbol_table.FIELD {
-			ce.vmWriter.WritePush(vm_writer.THIS, identifierInfo.Index)
-		}
+		ce.pushVMVar(identifierInfo)
 
 		ce.WrapperTokenizerAdvance()
 	}
@@ -91,7 +98,18 @@ func (ce *CompilationEngine) WriteKeywordConstTerm() {
 // HandleStrConstTerm handles a string constant term. Call function
 // String.new() and appendChar(), the latter multiply times if necessary.
 func (ce *CompilationEngine) HandleStrConstTerm() {
-	// TODO:
+	strToken := ce.tokenizer.GetCurrentToken()
+
+	// create vm string based on string length
+	ce.vmWriter.WritePush(vm_writer.CONST, len(strToken))
+	ce.vmWriter.WriteCall("String.new", 1)
+
+	// append chars
+	for _, char := range strToken {
+		ce.vmWriter.WritePush(vm_writer.CONST, int(char))
+		ce.vmWriter.WriteCall("String.appendChar", 2)
+	}
+
 	ce.WrapperTokenizerAdvance()
 }
 

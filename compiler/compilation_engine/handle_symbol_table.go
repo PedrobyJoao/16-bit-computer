@@ -2,7 +2,6 @@ package compilation_engine
 
 import (
 	"fmt"
-
 	"github.com/PedrobyJoao/16-bit-computer/compiler/symbol_table"
 )
 
@@ -11,23 +10,22 @@ import (
 func (ce *CompilationEngine) GetIdentifierInfo(name string) (symbol_table.IdentifierInfo, error) {
 	var identifierInfo symbol_table.IdentifierInfo
 
-	identifierInfo, err := ce.subroutineSymbolTable.GetIdentifierInfo(name)
-	if err != nil {
-		return symbol_table.IdentifierInfo{}, err
-	}
+	// ignore if error
+	identifierInfo = ce.subroutineSymbolTable.GetIdentifierInfo(name)
 
 	if identifierInfo != (symbol_table.IdentifierInfo{}) {
 		return identifierInfo, nil
 	}
 
-	identifierInfo, err = ce.classSymbolTable.GetIdentifierInfo(name)
-	if err != nil {
-		return symbol_table.IdentifierInfo{}, err
-	}
+	identifierInfo = ce.classSymbolTable.GetIdentifierInfo(name)
 
 	if identifierInfo != (symbol_table.IdentifierInfo{}) {
 		return identifierInfo, nil
 	}
 
-	return symbol_table.IdentifierInfo{}, fmt.Errorf("identifier %s within none of the tables", name)
+	return symbol_table.IdentifierInfo{},
+		fmt.Errorf(
+			"identifier %s not found\n  other classes within directory: %v",
+			name, ce.allAppClasses,
+		)
 }

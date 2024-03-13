@@ -1,6 +1,8 @@
 package compilation_engine
 
 import (
+	"log"
+
 	"github.com/PedrobyJoao/16-bit-computer/compiler/symbol_table"
 	"github.com/PedrobyJoao/16-bit-computer/compiler/tokenizer"
 	"github.com/PedrobyJoao/16-bit-computer/compiler/vm_writer"
@@ -46,6 +48,8 @@ func (ce *CompilationEngine) WriteOpVMCommand(op string) {
 		ce.vmWriter.WriteArithmetic(vm_writer.EQ)
 	case "*":
 		ce.vmWriter.WriteCall("Math.multiply", 2)
+	case "/":
+		ce.vmWriter.WriteCall("Math.divide", 2)
 	}
 }
 
@@ -92,13 +96,15 @@ func (ce *CompilationEngine) CompileTerm() {
 	}
 }
 
-func (ce *CompilationEngine) VMPushVar(identifierInfo *symbol_table.IdentifierInfo) {
-	if identifierInfo.Kind == symbol_table.ARGUMENT {
+func (ce *CompilationEngine) pushVMVar(identifierInfo symbol_table.IdentifierInfo) {
+	if identifierInfo.Kind == symbol_table.VAR {
+		ce.vmWriter.WritePush(vm_writer.LOCAL, identifierInfo.Index)
+	} else if identifierInfo.Kind == symbol_table.ARGUMENT {
 		ce.vmWriter.WritePush(vm_writer.ARGUMENT, identifierInfo.Index)
 	} else if identifierInfo.Kind == symbol_table.STATIC {
 		ce.vmWriter.WritePush(vm_writer.STATIC, identifierInfo.Index)
-	} else if identifierInfo.Kind == symbol_table.VAR {
-		ce.vmWriter.WritePush(vm_writer.LOCAL, identifierInfo.Index)
+	} else if identifierInfo.Kind == symbol_table.FIELD {
+		ce.vmWriter.WritePush(vm_writer.THIS, identifierInfo.Index)
 	}
 }
 
@@ -133,6 +139,7 @@ func (ce *CompilationEngine) CompileExpressionList() int {
 func (ce *CompilationEngine) compileSubroutineCall(hasReturn bool) {
 	var subroutineNoun string
 	var subroutinePredicate string
+	var identifierInfo symbol_table.IdentifierInfo
 
 	// subroutineName, className or varName are all identifiers-terminals
 	subroutineNoun = ce.tokenizer.GetCurrentToken()
@@ -146,6 +153,26 @@ func (ce *CompilationEngine) compileSubroutineCall(hasReturn bool) {
 		// subroutineName is a terminal-identifier
 		subroutinePredicate = ce.tokenizer.GetCurrentToken()
 		ce.WrapperTokenizerAdvance()
+
+		// write object as first arg to the being called subroutine
+		var err error
+
+		identifierInfo, err = ce.GetIdentifierInfo(subroutineNoun)
+		if err != nil {
+			// it's just an error if the subroutine doesn't exist either on the
+			// symbol tables or other classes within the code repository
+			if _, ok := ce.allAppClasses[subroutineNoun]; !ok {
+				ce.subroutineSymbolTable.ShowSymbolTable("subroutine")
+				ce.classSymbolTable.ShowSymbolTable("class")
+				log.Fatalf(
+					"Error getting identifier info: %s\n Class: %s | subroutine: %s",
+					err, ce.className, subroutineNoun+"."+subroutinePredicate)
+			}
+		}
+
+		if subroutinePredicate != "new" {
+			ce.pushVMVar(identifierInfo)
+		}
 	}
 
 	// '(' is a terminal symbol
@@ -158,7 +185,11 @@ func (ce *CompilationEngine) compileSubroutineCall(hasReturn bool) {
 
 	// VM call subroutine
 	if subroutinePredicate != "" {
-		ce.vmWriter.WriteCall(subroutineNoun+"."+subroutinePredicate, numArgs)
+		if _, ok := ce.allAppClasses[subroutineNoun]; !ok {
+			ce.vmWriter.WriteCall(identifierInfo.Type+"."+subroutinePredicate, numArgs)
+		} else {
+			ce.vmWriter.WriteCall(subroutineNoun+"."+subroutinePredicate, numArgs)
+		}
 	} else {
 		ce.vmWriter.WriteCall(subroutineNoun, numArgs)
 	}
