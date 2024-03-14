@@ -2,30 +2,26 @@ package compilation_engine
 
 import (
 	"log"
+
+	"github.com/PedrobyJoao/16-bit-computer/compiler/symbol_table"
+	"github.com/PedrobyJoao/16-bit-computer/compiler/vm_writer"
 )
 
 // CompileClass compiles a class.
 //
 // Context-free syntax: 'class' className '{' classVarDec* subroutineDec* '}'
 func (ce *CompilationEngine) CompileClass() {
-	err := ce.tokenizer.WrapAdvance()
-	if err != nil {
-		log.Fatalf(
-			"Failed to advance tokenizer after starting to compile class: %s",
-			err)
-	}
+	ce.WrapperTokenizerAdvance()
 
-	ce.WriteNonTerminal("class")
-	ce.whiteSpaces += 2
+	// "class" which is a keyword terminal
+	ce.WrapperTokenizerAdvance()
 
-	// print out "class" which is a keyword terminal
-	ce.WriteTerminal()
+	// className which is a identifier terminal
+	ce.className = ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
 
-	// print out className which is a identifier terminal
-	ce.WriteTerminal()
-
-	// print out '{' which is a symbol terminal still within the class non-terminal
-	ce.WriteTerminal()
+	// '{' which is a symbol terminal still within the class non-terminal
+	ce.WrapperTokenizerAdvance()
 
 	// compile classVarDec* (possibly being more than one)
 	for ce.tokenizer.GetCurrentToken() == "static" ||
@@ -40,12 +36,13 @@ func (ce *CompilationEngine) CompileClass() {
 		ce.CompileSubroutine()
 	}
 
-	// print out '}' which is a symbol terminal still within the class non-terminal
-	ce.WriteTerminal()
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/class")
+	// '}' which is a symbol terminal still within the class non-terminal
+	ce.WrapperTokenizerAdvance()
 
-	ce.outFile.Close()
+	err := ce.vmWriter.Close()
+	if err != nil {
+		log.Fatalf("Failed to close being compiled vm file: %s", err)
+	}
 }
 
 // CompileClassVarDec compiles a class var declaration
@@ -54,32 +51,36 @@ func (ce *CompilationEngine) CompileClass() {
 //
 // type: int | char | boolean | className
 func (ce *CompilationEngine) CompileClassVarDec() {
-	ce.WriteNonTerminal("classVarDec")
-	ce.whiteSpaces += 2
-
 	// 'static' or 'field' are terminals keyword
-	ce.WriteTerminal()
+	varKind := ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
 
 	// possible `types` are keywords (int, bool...) or an identifier
-	ce.WriteTerminal()
+	varType := ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
 
 	// varName is a terminal identifier
-	ce.WriteTerminal()
+	varName := ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
+
+	// add to class symbolTable
+	ce.classSymbolTable.AddEntry(varName, varType, symbol_table.Kind(varKind))
 
 	// compile possible multiple varNames
 	for ce.tokenizer.GetCurrentToken() == "," {
-		// print out ','
-		ce.WriteTerminal()
+		// ','
+		ce.WrapperTokenizerAdvance()
 
-		// print out varName
-		ce.WriteTerminal()
+		// varName
+		varName = ce.tokenizer.GetCurrentToken()
+		ce.WrapperTokenizerAdvance()
+
+		// add to class symbolTable
+		ce.classSymbolTable.AddEntry(varName, varType, symbol_table.Kind(varKind))
 	}
 
-	// print out ';'
-	ce.WriteTerminal()
-
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/classVarDec")
+	// ';'
+	ce.WrapperTokenizerAdvance()
 }
 
 // CompileSubroutine compiles a subroutine
@@ -90,115 +91,145 @@ func (ce *CompilationEngine) CompileClassVarDec() {
 //
 // subroutineBody = '{' varDec* statements '}'
 func (ce *CompilationEngine) CompileSubroutine() {
-	ce.WriteNonTerminal("subroutineDec")
-	ce.whiteSpaces += 2
+	// reset subroutine symbolTable
+	ce.subroutineSymbolTable.ResetSymbolTable()
 
-	// print out terminal keyword of constructor, function or method
-	ce.WriteTerminal()
+	// terminal keyword of constructor, function or method
+	subroutineKeyword := ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
 
-	// print out terminal which may be a keyword or an identifier (for 'void' | type)
-	ce.WriteTerminal()
+	// terminal which may be a keyword or an identifier (for 'void' | type)
+	ce.WrapperTokenizerAdvance()
 
-	// print out subroutineName which is a terminal identifier
-	ce.WriteTerminal()
+	// subroutineName which is a terminal identifier
+	subroutineName := ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
 
-	// print out '('
-	ce.WriteTerminal()
+	// '('
+	ce.WrapperTokenizerAdvance()
 
 	// compile parameterList
-	ce.CompileParameterList()
+	ce.CompileParameterList(subroutineKeyword)
 
-	// print out ')'
-	ce.WriteTerminal()
+	// ')'
+	ce.WrapperTokenizerAdvance()
 
 	// compile subroutineBody
-	ce.compileSubroutineBody()
+	ce.compileSubroutineBody(subroutineName, subroutineKeyword)
 
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/subroutineDec")
+	ce.vmWriter.WriteEmptyLine() // for debugging purposes
 }
 
 // compileSubroutineBody compiles a subroutine body
 //
 // Context-free syntax: '{' varDec* statements '}'
-func (ce *CompilationEngine) compileSubroutineBody() {
-	ce.WriteNonTerminal("subroutineBody")
-	ce.whiteSpaces += 2
-
+func (ce *CompilationEngine) compileSubroutineBody(
+	subroutineName, subroutineKeyword string) {
 	// '{' is a terminal symbol
-	ce.WriteTerminal()
+	ce.WrapperTokenizerAdvance()
 
 	// compile varDec* (possibly being more than one)
 	for ce.tokenizer.GetCurrentToken() == "var" {
 		ce.CompileVarDec()
 	}
 
+	// write func within vm
+	ce.vmWriter.WriteFunction(
+		ce.className+"."+subroutineName,
+		ce.subroutineSymbolTable.VarCount(symbol_table.VAR),
+	)
+
+	if subroutineKeyword == "constructor" {
+		// allocates memory for object based on the number of fields
+		numFields := ce.classSymbolTable.VarCount(symbol_table.FIELD)
+		ce.vmWriter.WritePush(vm_writer.CONST, numFields)
+		ce.vmWriter.WriteCall("Memory.alloc", 1)
+		ce.vmWriter.WritePop(vm_writer.POINTER, 0)
+	} else if subroutineKeyword == "method" {
+		// this is the object to be acted on
+		ce.vmWriter.WritePush(vm_writer.ARGUMENT, 0)
+		ce.vmWriter.WritePop(vm_writer.POINTER, 0)
+	}
+
 	ce.CompileStatements()
 
 	// '}' is a terminal symbol
-	ce.WriteTerminal()
-
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/subroutineBody")
+	ce.WrapperTokenizerAdvance()
 }
 
 // CompileParameterList compiles a parameter list
 //
 // Context-free syntax: ((type varName) (',' type varName)*)?
-func (ce *CompilationEngine) CompileParameterList() {
-	ce.WriteNonTerminal("parameterList")
-	ce.whiteSpaces += 2
-
+func (ce *CompilationEngine) CompileParameterList(subroutineKeyword string) {
 	if ce.tokenizer.GetCurrentToken() != ")" {
+		varKind := symbol_table.ARGUMENT
+
+		if subroutineKeyword == "method" {
+			// the first argument is 'this' (the object to be acted on)
+			varName := "this"
+			ce.subroutineSymbolTable.AddEntry(varName, ce.className, varKind)
+		}
+
 		// type is either a keyword or an identifier (terminal)
-		ce.WriteTerminal()
+		varType := ce.tokenizer.GetCurrentToken()
+		ce.WrapperTokenizerAdvance()
 
 		// varName is a terminal identifier
-		ce.WriteTerminal()
+		varName := ce.tokenizer.GetCurrentToken()
+		ce.WrapperTokenizerAdvance()
+
+		// add to subroutine symbolTable
+		ce.subroutineSymbolTable.AddEntry(varName, varType, varKind)
 
 		for ce.tokenizer.GetCurrentToken() == "," {
-			// print out ',' symbol terminal
-			ce.WriteTerminal()
+			// ',' symbol terminal
+			ce.WrapperTokenizerAdvance()
 
 			// type is either a keyword or an identifier (terminal)
-			ce.WriteTerminal()
+			varType := ce.tokenizer.GetCurrentToken()
+			ce.WrapperTokenizerAdvance()
 
 			// varName is a terminal identifier
-			ce.WriteTerminal()
+			varName := ce.tokenizer.GetCurrentToken()
+			ce.WrapperTokenizerAdvance()
+
+			// add to subroutine symbolTable
+			ce.subroutineSymbolTable.AddEntry(varName, varType, varKind)
 		}
 	}
-
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/parameterList")
 }
 
 // CompileVarDec compiles a var declaration
 // Content-free syntax:
 // 'var' type varName (',' varName)* ';'
 func (ce *CompilationEngine) CompileVarDec() {
-	ce.WriteNonTerminal("varDec")
-	ce.whiteSpaces += 2
-
 	// 'var' is a terminal keyword
-	ce.WriteTerminal()
+	varKind := symbol_table.VAR
+	ce.WrapperTokenizerAdvance()
 
 	// type is either a keyword or an identifier (terminal)
-	ce.WriteTerminal()
+	varType := ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
 
 	// varName is a terminal identifier
-	ce.WriteTerminal()
+	varName := ce.tokenizer.GetCurrentToken()
+	ce.WrapperTokenizerAdvance()
+
+	// add to subroutine symbolTable
+	ce.subroutineSymbolTable.AddEntry(varName, varType, varKind)
 
 	for ce.tokenizer.GetCurrentToken() == "," {
-		// print out ',' symbol terminal
-		ce.WriteTerminal()
+		// ',' symbol terminal
+		ce.WrapperTokenizerAdvance()
 
 		// varName is a terminal identifier
-		ce.WriteTerminal()
+		varName := ce.tokenizer.GetCurrentToken()
+		ce.WrapperTokenizerAdvance()
+
+		// add to subroutine symbolTable
+		ce.subroutineSymbolTable.AddEntry(varName, varType, varKind)
 	}
 
-	// print out ';' symbol terminal
-	ce.WriteTerminal()
-
-	ce.whiteSpaces -= 2
-	ce.WriteNonTerminal("/varDec")
+	// ';' symbol terminal
+	ce.WrapperTokenizerAdvance()
 }

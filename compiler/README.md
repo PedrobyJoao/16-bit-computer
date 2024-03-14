@@ -77,3 +77,47 @@ LL(1) grammar are the formal languages which this is solved by having the first 
 non-terminal is down the tree. So just one look ahead is necessary, hence `1` in `LL(1)`
 
 With non LL(1) grammars, compilers have to do more than 1 look ahead to identify the non-terminal
+
+## Code Generation
+
+The code generation is responsible for translating the high-level programming language into the intermediary VM language.
+
+### Symbol Table
+
+The Syntax analysis part mapped all `identifier` tokens but that is **not enough for the VM**. The VM needs to know, for variables,
+their `type` (int, string, ...), `kind` (static, field, argument, var), `index` (to be mapped to the virtual segment) and its
+`scope` (in case of the Hack Language, there are **two scopes only: Class and Subroutine scopes**).
+
+And that is the goal of the Symbol Table, to map all these information for all declared variables under Class and under all 
+Subroutines. Then, whenever the VMWriter module generates a piece of code dependent on a variable, it'll get information from
+this symbol table.
+
+### Debugging
+
+1. After some long hours testing, I forgot that there is a HackCompiler provided by the tools. So I can mostly
+test comparing the output of my compiler to the output of the "oficial" HackCompiler.
+2. So many bugs testing `ConvertToBin`.. OMG
+
+## Reminder: RAM organization
+
+Of course that I already messed with virtual segments in depth back on the chapters 7 and 8 but I think it's good
+to remind me myself here how the RAM is organized (stack, pointers, virtual segments, heap...).
+
+**Stack**: The stack contain the virtual segments of all being computed subroutines. The first addresses within RAM are the pointers
+referencing the current subroutine virtual segments.
+
+**Heap**: heap contains **objects** and **arrays** (to access them, use `this` for objects and `that` for arrays).
+
+RAM
+```
+0: SP (Stack Pointer)
+1: LCL (Local Pointer)
+2: ARG (Argument Pointer)
+3: THIS (THIS Pointer)
+4: THAT (THAT Pointer)
+5-13: TEMP
+constant and static
+Stack
+Heap
+I/O stuffs (screen, keyboard, ...)
+```

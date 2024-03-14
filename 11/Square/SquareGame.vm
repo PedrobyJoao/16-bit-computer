@@ -1,0 +1,192 @@
+function SquareGame.new 0
+push constant 2
+call Memory.alloc 1
+pop pointer 0
+push constant 0
+push constant 0
+push constant 30
+call Square.new 3
+pop this 0
+push constant 0
+pop this 1
+push pointer 0
+return
+
+function SquareGame.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+call Square.dispose 0
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+
+function SquareGame.moveSquare 0
+push argument 0
+pop pointer 0
+push this 1
+push constant 1
+eq
+not
+if-goto label_0
+push this 0
+call Square.moveUp 0
+pop temp 0
+goto label_1
+label label_0
+label label_1
+push this 1
+push constant 2
+eq
+not
+if-goto label_2
+push this 0
+call Square.moveDown 0
+pop temp 0
+goto label_3
+label label_2
+label label_3
+push this 1
+push constant 3
+eq
+not
+if-goto label_4
+push this 0
+call Square.moveLeft 0
+pop temp 0
+goto label_5
+label label_4
+label label_5
+push this 1
+push constant 4
+eq
+not
+if-goto label_6
+push this 0
+call Square.moveRight 0
+pop temp 0
+goto label_7
+label label_6
+label label_7
+push constant 5
+call Sys.wait 1
+pop temp 0
+push constant 0
+return
+
+function SquareGame.run 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 1
+label label_8
+push local 1
+not
+not
+if-goto label_9
+label label_10
+push local 0
+push constant 0
+eq
+not
+if-goto label_11
+call Keyboard.keyPressed 0
+pop local 0
+call moveSquare 0
+pop temp 0
+goto label_10
+label label_11
+push local 0
+push constant 81
+eq
+not
+if-goto label_12
+push constant 1
+neg
+pop local 1
+goto label_13
+label label_12
+label label_13
+push local 0
+push constant 90
+eq
+not
+if-goto label_14
+push this 0
+call Square.decSize 0
+pop temp 0
+goto label_15
+label label_14
+label label_15
+push local 0
+push constant 88
+eq
+not
+if-goto label_16
+push this 0
+call Square.incSize 0
+pop temp 0
+goto label_17
+label label_16
+label label_17
+push local 0
+push constant 131
+eq
+not
+if-goto label_18
+push constant 1
+pop this 1
+goto label_19
+label label_18
+label label_19
+push local 0
+push constant 133
+eq
+not
+if-goto label_20
+push constant 2
+pop this 1
+goto label_21
+label label_20
+label label_21
+push local 0
+push constant 130
+eq
+not
+if-goto label_22
+push constant 3
+pop this 1
+goto label_23
+label label_22
+label label_23
+push local 0
+push constant 132
+eq
+not
+if-goto label_24
+push constant 4
+pop this 1
+goto label_25
+label label_24
+label label_25
+label label_26
+push local 0
+push constant 0
+eq
+not
+not
+if-goto label_27
+call Keyboard.keyPressed 0
+pop local 0
+call moveSquare 0
+pop temp 0
+goto label_26
+label label_27
+goto label_8
+label label_9
+push constant 0
+return
+
