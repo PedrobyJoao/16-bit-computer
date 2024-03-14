@@ -36,8 +36,6 @@ Note: *Screen and Keyboard** were not built by me obviously. They are virtualize
 Thanks Noam and Shimon for this incredible book.
 
 ### TODOs:
-- [ ] Rename study notes to self-explanatory names
-- [ ] Rename projects to self-explanatory names
 - [ ] Separate Assembler, VM, Compiler and OS in different repositories (maybe)
 - [ ] Blog post explaining how a computer works from nand to tetris hihi =) (one of the reasons for this is to consolidate 
 what I learned through these months)
