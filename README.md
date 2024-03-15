@@ -5,6 +5,9 @@ the smallest chips (NAND, AND...), Registers, RAM, ALU, to the CPU on the hardwa
 But also an Assembler, a Virtual Machine, a high-level programming language, a Compiler, and finally
 a Operating System
 
+You can find READMEs within each subdirectory under `software/` and `hardware/` containing
+my study notes for each software/hardware component. Example: [Virtual Machine README](software/virtual_machine/)
+
 ## Specs
 
 ### Hardware
